@@ -1,0 +1,156 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { ShoppingBag, Menu, X, Search } from 'lucide-react';
+import { toggleNav, closeNav, toggleCart } from '../../redux/slices/uiSlice.js';
+import MiniCart from '../cart/MiniCart.jsx';
+
+const Navbar = () => {
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { isNavOpen, isCartOpen } = useSelector((state) => state.ui);
+  const { totalQuantity } = useSelector((state) => state.cart);
+  const [isScrolled, setIsScrolled] = useState(false);
+  
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Close mobile menu on route change
+  useEffect(() => {
+    dispatch(closeNav());
+  }, [location, dispatch]);
+  
+  const handleNavToggle = () => {
+    dispatch(toggleNav());
+  };
+  
+  const handleCartToggle = () => {
+    dispatch(toggleCart());
+  };
+  
+  return (
+    <header 
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? 'bg-white shadow-md py-2' : 'bg-transparent py-4'
+      }`}
+    >
+      <div className="container-custom flex items-center justify-between">
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <span className="text-burgundy font-heading text-2xl font-semibold">
+            Soni
+            <span className="text-gold"> Jewellers</span>
+          </span>
+        </Link>
+        
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          <Link 
+            to="/" 
+            className={`font-medium hover:text-burgundy transition-colors ${
+              location.pathname === '/' ? 'text-burgundy' : 'text-charcoal'
+            }`}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/shop" 
+            className={`font-medium hover:text-burgundy transition-colors ${
+              location.pathname.includes('/shop') ? 'text-burgundy' : 'text-charcoal'
+            }`}
+          >
+            Shop
+          </Link>
+          <Link 
+            to="/contact" 
+            className={`font-medium hover:text-burgundy transition-colors ${
+              location.pathname === '/contact' ? 'text-burgundy' : 'text-charcoal'
+            }`}
+          >
+            Contact
+          </Link>
+        </nav>
+        
+        {/* Right section - Cart & Search */}
+        <div className="flex items-center">
+          <button 
+            className="p-2 hover:text-burgundy transition-colors"
+            aria-label="Search"
+          >
+            <Search size={20} />
+          </button>
+          
+          <button 
+            className="p-2 hover:text-burgundy transition-colors relative"
+            onClick={handleCartToggle}
+            aria-label="Shopping cart"
+          >
+            <ShoppingBag size={20} />
+            {totalQuantity > 0 && (
+              <span className="absolute -top-1 -right-1 bg-burgundy text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {totalQuantity}
+              </span>
+            )}
+          </button>
+          
+          {/* Mobile menu button */}
+          <button 
+            className="p-2 ml-2 md:hidden hover:text-burgundy transition-colors"
+            onClick={handleNavToggle}
+            aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isNavOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+      
+      {/* Mobile Navigation */}
+      {isNavOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white shadow-lg animate-fade-in">
+          <nav className="container-custom py-4 flex flex-col space-y-4">
+            <Link 
+              to="/" 
+              className={`font-medium py-2 hover:text-burgundy transition-colors ${
+                location.pathname === '/' ? 'text-burgundy' : 'text-charcoal'
+              }`}
+            >
+              Home
+            </Link>
+            <Link 
+              to="/shop" 
+              className={`font-medium py-2 hover:text-burgundy transition-colors ${
+                location.pathname.includes('/shop') ? 'text-burgundy' : 'text-charcoal'
+              }`}
+            >
+              Shop
+            </Link>
+            <Link 
+              to="/contact" 
+              className={`font-medium py-2 hover:text-burgundy transition-colors ${
+                location.pathname === '/contact' ? 'text-burgundy' : 'text-charcoal'
+              }`}
+            >
+              Contact
+            </Link>
+          </nav>
+        </div>
+      )}
+      
+      {/* Mini Cart */}
+      {isCartOpen && <MiniCart />}
+    </header>
+  );
+};
+
+export default Navbar;
