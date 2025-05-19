@@ -11,8 +11,8 @@ const authSlice = createSlice({
   reducers: {
     setUser(state, action) {
       state.user = action.payload;
-      // For demo purposes, if email contains 'admin', set as admin
-      state.isAdmin = action.payload?.email?.includes('admin') || false;
+      // Set admin status based on specific email
+      state.isAdmin = action.payload?.email === 'admin@gmail.com';
     },
     logout(state) {
       state.user = null;

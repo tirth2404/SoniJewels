@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../redux/slices/authSlice.js';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -26,9 +29,16 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement actual login logic
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      navigate('/');
+      // Check for admin credentials
+      if (formData.email === 'admin@gmail.com' && formData.password === 'Digiesale') {
+        dispatch(setUser({ email: formData.email }));
+        navigate('/admin');
+      } else {
+        // TODO: Implement actual login logic for regular users
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+        dispatch(setUser({ email: formData.email }));
+        navigate('/');
+      }
     } catch (err) {
       setError('Invalid email or password');
     } finally {
