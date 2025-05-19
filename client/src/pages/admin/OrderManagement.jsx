@@ -29,6 +29,13 @@ const OrderManagement = () => {
   return (
     <div className="min-h-screen pt-24 bg-cream-light">
       <div className="container-custom py-8">
+        <button
+          onClick={() => window.history.back()}
+          className="btn btn-outline rounded-full mb-4 w-10 h-10 flex items-center justify-center text-burgundy border-burgundy hover:bg-burgundy hover:text-white transition-colors"
+          aria-label="Back to Admin Dashboard"
+        >
+          <span className="text-2xl font-bold">&larr;</span>
+        </button>
         <h1 className="text-3xl font-heading mb-8">Order Management</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -125,4 +132,4 @@ const OrderManagement = () => {
   );
 };
 
-export default OrderManagement
+export default OrderManagement;

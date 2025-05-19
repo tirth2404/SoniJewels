@@ -15,6 +15,13 @@ const ProductManagement = () => {
   return (
     <div className="min-h-screen pt-24 bg-cream-light">
       <div className="container-custom py-8">
+        <button
+          onClick={() => window.history.back()}
+          className="btn btn-outline rounded-full mb-4 w-10 h-10 flex items-center justify-center text-burgundy border-burgundy hover:bg-burgundy hover:text-white transition-colors"
+          aria-label="Back to Admin Dashboard"
+        >
+          <span className="text-2xl font-bold">&larr;</span>
+        </button>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-heading">Product Management</h1>
           <button
@@ -130,6 +137,15 @@ const ProductManagement = () => {
                     defaultValue={selectedProduct?.price}
                   />
                 </div>
+                <div>
+                  <label className="form-label">Stock</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    defaultValue={selectedProduct?.stock || ''}
+                    min="0"
+                  />
+                </div>
               </div>
               
               <div>
@@ -170,4 +186,4 @@ const ProductManagement = () => {
   );
 };
 
-export default ProductManagement
+export default ProductManagement;

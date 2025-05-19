@@ -33,6 +33,9 @@ const Navbar = () => {
     navigate('/');
   };
   
+  // Only show brand and logout if admin is logged in and on admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -46,93 +49,103 @@ const Navbar = () => {
             <span className="text-gold"> Jewellers</span>
           </span>
         </Link>
-        
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link 
-            to="/" 
-            className={`font-medium hover:text-burgundy transition-colors ${
-              location.pathname === '/' ? 'text-burgundy' : 'text-charcoal'
-            }`}
+        {isAdmin && isAdminRoute ? (
+          <button
+            onClick={handleLogout}
+            className="btn btn-outline text-burgundy ml-auto"
           >
-            Home
-          </Link>
-          <Link 
-            to="/shop" 
-            className={`font-medium hover:text-burgundy transition-colors ${
-              location.pathname.includes('/shop') ? 'text-burgundy' : 'text-charcoal'
-            }`}
-          >
-            Shop
-          </Link>
-          <Link 
-            to="/contact" 
-            className={`font-medium hover:text-burgundy transition-colors ${
-              location.pathname === '/contact' ? 'text-burgundy' : 'text-charcoal'
-            }`}
-          >
-            Contact
-          </Link>
-          {isAdmin && (
-            <Link 
-              to="/admin" 
-              className={`font-medium hover:text-burgundy transition-colors ${
-                location.pathname === '/admin' ? 'text-burgundy' : 'text-charcoal'
-              }`}
-            >
-              Admin
-            </Link>
-          )}
-        </nav>
-        
-        <div className="flex items-center">
-          <button 
-            className="p-2 hover:text-burgundy transition-colors"
-            aria-label="Search"
-          >
-            <Search size={20} />
+            Logout
           </button>
-          
-          <button 
-            className="p-2 hover:text-burgundy transition-colors relative"
-            onClick={() => dispatch(toggleCart())}
-            aria-label="Shopping cart"
-          >
-            <ShoppingBag size={20} />
-            {totalQuantity > 0 && (
-              <span className="absolute -top-1 -right-1 bg-burgundy text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {totalQuantity}
-              </span>
-            )}
-          </button>
-          
-          {user ? (
-            <div className="relative ml-2">
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:text-burgundy transition-colors flex items-center"
+        ) : (
+          <>
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link 
+                to="/" 
+                className={`font-medium hover:text-burgundy transition-colors ${
+                  location.pathname === '/' ? 'text-burgundy' : 'text-charcoal'
+                }`}
               >
-                <User size={20} className="mr-2" />
-                <span className="hidden md:inline">Logout</span>
+                Home
+              </Link>
+              <Link 
+                to="/shop" 
+                className={`font-medium hover:text-burgundy transition-colors ${
+                  location.pathname.includes('/shop') ? 'text-burgundy' : 'text-charcoal'
+                }`}
+              >
+                Shop
+              </Link>
+              <Link 
+                to="/contact" 
+                className={`font-medium hover:text-burgundy transition-colors ${
+                  location.pathname === '/contact' ? 'text-burgundy' : 'text-charcoal'
+                }`}
+              >
+                Contact
+              </Link>
+              {isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className={`font-medium hover:text-burgundy transition-colors ${
+                    location.pathname === '/admin' ? 'text-burgundy' : 'text-charcoal'
+                  }`}
+                >
+                  Admin
+                </Link>
+              )}
+            </nav>
+            
+            <div className="flex items-center">
+              <button 
+                className="p-2 hover:text-burgundy transition-colors"
+                aria-label="Search"
+              >
+                <Search size={20} />
+              </button>
+              
+              <button 
+                className="p-2 hover:text-burgundy transition-colors relative"
+                onClick={() => dispatch(toggleCart())}
+                aria-label="Shopping cart"
+              >
+                <ShoppingBag size={20} />
+                {totalQuantity > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-burgundy text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalQuantity}
+                  </span>
+                )}
+              </button>
+              
+              {user ? (
+                <div className="relative ml-2">
+                  <button
+                    onClick={handleLogout}
+                    className="p-2 hover:text-burgundy transition-colors flex items-center"
+                  >
+                    <User size={20} className="mr-2" />
+                    <span className="hidden md:inline">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/login"
+                  className="p-2 hover:text-burgundy transition-colors flex items-center"
+                >
+                  <User size={20} className="mr-2" />
+                  <span className="hidden md:inline">Login</span>
+                </Link>
+              )}
+              
+              <button 
+                className="p-2 ml-2 md:hidden hover:text-burgundy transition-colors"
+                onClick={() => dispatch(toggleNav())}
+                aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
+              >
+                {isNavOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
-          ) : (
-            <Link
-              to="/login"
-              className="p-2 hover:text-burgundy transition-colors flex items-center"
-            >
-              <User size={20} className="mr-2" />
-              <span className="hidden md:inline">Login</span>
-            </Link>
-          )}
-          
-          <button 
-            className="p-2 ml-2 md:hidden hover:text-burgundy transition-colors"
-            onClick={() => dispatch(toggleNav())}
-            aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
-          >
-            {isNavOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
+          </>
+        )}
       </div>
       
       {isNavOpen && (
