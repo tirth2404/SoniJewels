@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -16,6 +16,7 @@ const ShopPage = () => {
     error 
   } = useSelector((state) => state.products);
   const { isFilterOpen } = useSelector((state) => state.ui);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   
   useEffect(() => {
     if (category) {
@@ -29,6 +30,9 @@ const ShopPage = () => {
     }
   }, [dispatch, status]);
   
+  // Close filter when overlay is clicked
+  const handleMobileFilterClose = () => setMobileFilterOpen(false);
+
   return (
     <div className="min-h-screen bg-cream-light pt-24">
       {/* Shop Header */}
@@ -56,9 +60,44 @@ const ShopPage = () => {
           </div>
         </div>
 
+        {/* Mobile Filter Button */}
+        <div className="md:hidden mb-4">
+          <button
+            className="w-full flex items-center justify-between bg-white shadow-sm rounded-md p-4 font-medium text-burgundy border border-burgundy"
+            onClick={() => setMobileFilterOpen(true)}
+          >
+            <span className="flex items-center">
+              <SlidersHorizontal size={20} className="mr-2" />
+              Filters
+            </span>
+            <span>
+              {/* Chevron icon */}
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+            </span>
+          </button>
+        </div>
+
+        {/* Mobile Filter Dropdown Overlay */}
+        {mobileFilterOpen && (
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-30" onClick={handleMobileFilterClose}></div>
+            {/* Filter Panel */}
+            <div className="relative bg-white w-full max-w-md mx-auto mt-20 rounded-md shadow-lg z-10 p-4 animate-slide-down">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-medium text-lg">Filters</span>
+                <button onClick={handleMobileFilterClose} aria-label="Close filter">
+                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                </button>
+              </div>
+              <ProductFilter onApply={handleMobileFilterClose} onClear={handleMobileFilterClose} />
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters */}
-          <aside className={`md:w-1/4 ${isFilterOpen ? 'fixed inset-0 z-50 bg-white md:relative md:bg-transparent' : 'hidden md:block'}`}>
+          <aside className={`md:w-1/4 hidden md:block`}>
             <ProductFilter />
           </aside>
           
