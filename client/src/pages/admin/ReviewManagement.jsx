@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageSquare, Star, Check, X } from 'lucide-react';
+import { MessageSquare, Star, Check, X, ChevronLeft } from 'lucide-react';
 
 const ReviewManagement = () => {
   const [activeTab, setActiveTab] = useState('reviews');
@@ -34,10 +34,11 @@ const ReviewManagement = () => {
       <div className="container-custom py-8">
         <button
           onClick={() => window.history.back()}
-          className="btn btn-outline rounded-full mb-4 w-10 h-10 flex items-center justify-center text-burgundy border-burgundy hover:bg-burgundy hover:text-white transition-colors"
+          className="rounded-full mb-4 w-10 h-10 flex items-center justify-center border-2 border-burgundy bg-white group hover:bg-burgundy transition-colors shadow"
           aria-label="Back to Admin Dashboard"
+          type="button"
         >
-          <span className="text-2xl font-bold">&larr;</span>
+          <ChevronLeft size={28} strokeWidth={3} className="text-burgundy group-hover:text-gold transition-colors" />
         </button>
         <h1 className="text-3xl font-heading mb-8">Reviews & Queries Management</h1>
 
