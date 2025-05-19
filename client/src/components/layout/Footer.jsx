@@ -76,15 +76,19 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-start">
                 <MapPin size={18} className="mr-2 mt-1 text-gold" />
-                <span className="text-gray-300">123 Jewellery Lane, Diamond District, Mumbai, 400001</span>
+                <span className="text-gray-300">
+                  JAMNA CHEMBERS SHOP NO.A-7 GROUND FLOOR<br />
+                  KANAIYA WADI, OLD SHAKTI VIJAY VARACHHA ROAD<br />
+                  Gujarat
+                </span>
               </li>
               <li className="flex items-center">
                 <Phone size={18} className="mr-2 text-gold" />
-                <a href="tel:+919876543210" className="text-gray-300 hover:text-white transition-colors">+91 98765 43210</a>
+                <a href="tel:+919427171850" className="text-gray-300 hover:text-white transition-colors">94271 71850</a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="mr-2 text-gold" />
-                <a href="mailto:info@sonijewellers.com" className="text-gray-300 hover:text-white transition-colors">info@sonijewellers.com</a>
+                <a href="mailto:vipul478langaliya@gmail.com" className="text-gray-300 hover:text-white transition-colors">vipul478langaliya@gmail.com</a>
               </li>
             </ul>
             <div className="mt-4">
