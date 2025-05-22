@@ -17,6 +17,11 @@ import AdminPage from './pages/admin/AdminPage.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
 import OrderManagement from './pages/admin/OrderManagement.jsx';
 import ReviewManagement from './pages/admin/ReviewManagement.jsx';
+import ProfilePage from './pages/user/ProfilePage.jsx';
+import OrdersPage from './pages/user/OrdersPage.jsx';
+import WishlistPage from './pages/user/WishlistPage.jsx';
+import ReviewsPage from './pages/user/ReviewsPage.jsx';
+import SettingsPage from './pages/user/SettingsPage.jsx';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
@@ -63,37 +68,80 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           
+          
+          {/* User Routes */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute requiresAuth>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute requiresAuth>
+                <OrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <ProtectedRoute requiresAuth>
+                <WishlistPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reviews"
+            element={
+              <ProtectedRoute requiresAuth>
+                <ReviewsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute requiresAuth>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          
           {/* Admin Routes */}
           <Route
             path="/admin"
             element={
-              // <ProtectedRoute requiresAuth requiresAdmin>
+              <ProtectedRoute requiresAuth requiresAdmin>
                 <AdminPage />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/products"
             element={
-              // <ProtectedRoute requiresAuth requiresAdmin>
+              <ProtectedRoute requiresAuth requiresAdmin>
                 <ProductManagement />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/orders"
             element={
-              //<ProtectedRoute requiresAuth requiresAdmin>
+              <ProtectedRoute requiresAuth requiresAdmin>
                 <OrderManagement />
-              //</ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/reviews"
             element={
-              //<ProtectedRoute requiresAuth requiresAdmin>
+              <ProtectedRoute requiresAuth requiresAdmin>
                 <ReviewManagement />
-              //</ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           

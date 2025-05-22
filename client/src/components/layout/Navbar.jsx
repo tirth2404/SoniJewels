@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { ShoppingBag, Menu, X, Search, User } from 'lucide-react';
+import { 
+  ShoppingBag, 
+  Menu, 
+  X, 
+  Search, 
+  User,
+  ChevronDown,
+  Package,
+  Heart,
+  Star,
+  Settings,
+  LogOut
+} from 'lucide-react';
 import { toggleNav, closeNav, toggleCart } from '../../redux/slices/uiSlice.js';
 import { logout } from '../../redux/slices/authSlice.js';
 import MiniCart from '../cart/MiniCart.jsx';
@@ -14,6 +26,7 @@ const Navbar = () => {
   const { totalQuantity } = useSelector((state) => state.cart);
   const { user, isAdmin } = useSelector((state) => state.auth);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +39,7 @@ const Navbar = () => {
   
   useEffect(() => {
     dispatch(closeNav());
+    setIsDropdownOpen(false);
   }, [location, dispatch]);
   
   const handleLogout = () => {
@@ -33,7 +47,6 @@ const Navbar = () => {
     navigate('/');
   };
   
-  // Only show brand and logout if admin is logged in and on admin route
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
@@ -119,12 +132,60 @@ const Navbar = () => {
               {user ? (
                 <div className="relative ml-2">
                   <button
-                    onClick={handleLogout}
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     className="p-2 hover:text-burgundy transition-colors flex items-center"
                   >
                     <User size={20} className="mr-2" />
-                    <span className="hidden md:inline">Logout</span>
+                    <span className="hidden md:inline mr-1">{user.email}</span>
+                    <ChevronDown size={16} />
                   </button>
+                  
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <User size={16} className="mr-2" />
+                        Profile
+                      </Link>
+                      <Link
+                        to="/orders"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Package size={16} className="mr-2" />
+                        Orders
+                      </Link>
+                      <Link
+                        to="/wishlist"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Heart size={16} className="mr-2" />
+                        Wishlist
+                      </Link>
+                      <Link
+                        to="/reviews"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Star size={16} className="mr-2" />
+                        Reviews
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Settings size={16} className="mr-2" />
+                        Settings
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut size={16} className="mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Link
@@ -194,4 +255,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar
+export default Navbar;

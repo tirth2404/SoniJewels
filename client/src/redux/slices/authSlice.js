@@ -3,6 +3,14 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   user: null,
   isAdmin: false,
+  profile: {
+    fullName: 'abc def',
+    email: 'user@gmail.com',
+    phone: '+91 1234567890',
+    gender: 'Male',
+    dob: '1990-01-01',
+    profilePicture: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+  }
 };
 
 const authSlice = createSlice({
@@ -11,8 +19,10 @@ const authSlice = createSlice({
   reducers: {
     setUser(state, action) {
       state.user = action.payload;
-      // Set admin status based on specific email
       state.isAdmin = action.payload?.email === 'admin@gmail.com';
+    },
+    updateProfile(state, action) {
+      state.profile = { ...state.profile, ...action.payload };
     },
     logout(state) {
       state.user = null;
@@ -21,5 +31,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logout } = authSlice.actions;
+export const { setUser, updateProfile, logout } = authSlice.actions;
 export default authSlice.reducer;

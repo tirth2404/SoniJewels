@@ -33,11 +33,11 @@ const LoginPage = () => {
       if (formData.email === 'admin@gmail.com' && formData.password === 'Digiesale') {
         dispatch(setUser({ email: formData.email }));
         navigate('/admin');
-      } else {
-        // TODO: Implement actual login logic for regular users
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      } else if (formData.email === 'user@gmail.com' && formData.password === 'Digiesale') {
         dispatch(setUser({ email: formData.email }));
         navigate('/');
+      } else {
+        throw new Error('Invalid credentials');
       }
     } catch (err) {
       setError('Invalid email or password');
