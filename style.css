@@ -1,0 +1,61 @@
+body {
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fffafc;
+    color: #333;
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 60%;
+    margin: 50px auto;
+    background-color: #fff0f5;
+    border-radius: 12px;
+}
+
+legend {
+    font-weight: bold;
+    color: #8B0000;
+    font-size: 24px;
+    letter-spacing: 1px;
+    font-family: 'Georgia', serif;
+}
+
+label {
+    float: left;
+    margin-left: 10%;
+    font-weight: 500;
+    color: #4a4a4a;
+}
+
+input[type="text"], input[type="email"], textarea {
+    width: 80%;
+    height: 35px;
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+textarea {
+    height: 80px;
+}
+
+.btn {
+    padding: 8px 25px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 25px;
+    color: white;
+    background-color: #8B0000;
+    border: none;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #a30000;
+}
