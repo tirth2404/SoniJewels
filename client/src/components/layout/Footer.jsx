@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import PrivacyPolicyPage from '../../pages/PrivacyPolicyPage';
+import TermsOfServicePage from '../../pages/TermsOfServicePage';
+import ShippingPolicyPage from '../../pages/ShippingPolicyPage';
 
 const Footer = () => {
   return (
@@ -44,6 +47,9 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/shop" className="text-gray-300 hover:text-white transition-colors">Bestsellers</Link>
+              </li>
+              <li>
+                <Link to="/feedback" className="text-gray-300 hover:text-white transition-colors">Feedback</Link>
               </li>
             </ul>
           </div>
@@ -106,9 +112,9 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} Soni Rameshbhai & Sons. All rights reserved.
           </p>
           <div className="flex space-x-6">
-            <Link to="/" className="text-gray-400 text-sm hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/" className="text-gray-400 text-sm hover:text-white transition-colors">Terms of Service</Link>
-            <Link to="/" className="text-gray-400 text-sm hover:text-white transition-colors">Shipping Policy</Link>
+            <Link to="/privacy" className="text-gray-400 text-sm hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-gray-400 text-sm hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/shipping" className="text-gray-400 text-sm hover:text-white transition-colors">Shipping Policy</Link>
           </div>
         </div>
       </div>

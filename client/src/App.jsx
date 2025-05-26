@@ -22,8 +22,11 @@ import OrdersPage from './pages/user/OrdersPage.jsx';
 import WishlistPage from './pages/user/WishlistPage.jsx';
 import ReviewsPage from './pages/user/ReviewsPage.jsx';
 import SettingsPage from './pages/user/SettingsPage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
+import ShippingPolicyPage from './pages/ShippingPolicyPage.jsx';
+import FeedbackPage from './pages/FeedbackPage.jsx';
 
-// Protected Route Component
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
   const { user, isAdmin } = useSelector((state) => state.auth);
 
@@ -144,6 +147,12 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          {/* Policy Pages */}
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
+          <Route path="/shipping" element={<ShippingPolicyPage />} />
+          <Route path="/feedback" element={<FeedbackPage />} />
           
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
