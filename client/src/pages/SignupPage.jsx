@@ -27,7 +27,7 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost/Digiesale_GP/SoniJewels/server/register.php', {
+      const response = await fetch('http://localhost/SoniJewels/server/register.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

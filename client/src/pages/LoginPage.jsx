@@ -68,7 +68,7 @@ const LoginPage = () => {
 };
 
     try {
-      const response = await fetch('http://localhost/Digiesale_GP/SoniJewels/server/login.php', {
+      const response = await fetch('http://localhost/SoniJewels/server/login.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
