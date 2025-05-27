@@ -1,11 +1,28 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import PrivacyPolicyPage from '../../pages/PrivacyPolicyPage';
 import TermsOfServicePage from '../../pages/TermsOfServicePage';
 import ShippingPolicyPage from '../../pages/ShippingPolicyPage';
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const scrollToSection = (sectionId) => {
+    // If we're not on the home page, navigate to home page with the section ID
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
+      return;
+    }
+
+    // If we're already on the home page, just scroll to the section
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-charcoal text-white pt-16 pb-8">
       <div className="container-custom">
@@ -17,13 +34,13 @@ const Footer = () => {
               Crafting elegant jewellery since 1965. Family owned and operated for three generations, offering the finest selection of diamonds, gold, and precious gemstones.
             </p>
             <div className="flex space-x-4 mt-4">
-              <a href="https://instagram.com" className="text-gray-300 hover:text-gold transition-colors" aria-label="Instagram">
+              <a href="#" className="text-gray-300 hover:text-gold transition-colors" aria-label="Instagram">
                 <Instagram size={20} />
               </a>
-              <a href="https://facebook.com" className="text-gray-300 hover:text-gold transition-colors" aria-label="Facebook">
+              <a href="#" className="text-gray-300 hover:text-gold transition-colors" aria-label="Facebook">
                 <Facebook size={20} />
               </a>
-              <a href="https://twitter.com" className="text-gray-300 hover:text-gold transition-colors" aria-label="Twitter">
+              <a href="#" className="text-gray-300 hover:text-gold transition-colors" aria-label="Twitter">
                 <Twitter size={20} />
               </a>
             </div>
@@ -40,16 +57,26 @@ const Footer = () => {
                 <Link to="/shop" className="text-gray-300 hover:text-white transition-colors">Shop</Link>
               </li>
               <li>
+                <Link to="/about" className="text-gray-300 hover:text-white transition-colors">About Us</Link>
+              </li>
+              <li>
                 <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">Contact</Link>
               </li>
               <li>
-                <Link to="/shop" className="text-gray-300 hover:text-white transition-colors">New Arrivals</Link>
+                <button
+                  onClick={() => scrollToSection('new-arrivals')}
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  New Arrivals
+                </button>
               </li>
               <li>
-                <Link to="/shop" className="text-gray-300 hover:text-white transition-colors">Bestsellers</Link>
-              </li>
-              <li>
-                <Link to="/feedback" className="text-gray-300 hover:text-white transition-colors">Feedback</Link>
+                <button
+                  onClick={() => scrollToSection('featured-collection')}
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Best Sellers
+                </button>
               </li>
             </ul>
           </div>

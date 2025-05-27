@@ -1,7 +1,7 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -15,6 +15,9 @@ import { fetchProducts } from '../redux/slices/productsSlice.js';
 import { addToCart } from '../redux/slices/cartSlice.js';
 import { formatPrice } from '../utils/formatters.js';
 import ProductCard from '../components/shop/ProductCard.jsx';
+import { addToWishlist, removeFromWishlist } from '../redux/slices/wishlistSlice';
+import QuickViewModal from '../components/shop/QuickViewModal';
+import { toast } from 'react-hot-toast';
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -22,11 +25,16 @@ const ProductPage = () => {
   const navigate = useNavigate();
   
   const { products, status } = useSelector((state) => state.products);
+  const { items: wishlistItems } = useSelector((state) => state.wishlist);
   
   const [product, setProduct] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [notification, setNotification] = useState(null);
+  const [showQuickView, setShowQuickView] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  
+  const isInWishlist = wishlistItems.some(item => item.id === product?.id);
   
   // Fetch products if not already loaded
   useEffect(() => {
@@ -79,20 +87,23 @@ const ProductPage = () => {
   };
   
   const handleAddToCart = () => {
-    if (!product) return;
-    
-    dispatch(
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0],
-      })
-    );
-    
-    // Show notification
-    setNotification('Product added to cart');
-    setTimeout(() => setNotification(null), 3000);
+    dispatch(addToCart({ ...product, quantity }));
+    toast.success('Added to cart');
+  };
+  
+  const handleWishlistToggle = () => {
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(product.id));
+      toast.success('Removed from wishlist');
+    } else {
+      dispatch(addToWishlist(product));
+      toast.success('Added to wishlist');
+    }
+  };
+  
+  const handleQuickView = (product) => {
+    setSelectedProduct(product);
+    setShowQuickView(true);
   };
   
   // Related products - same category
@@ -264,9 +275,12 @@ const ProductPage = () => {
                   <ShoppingBag size={18} className="mr-2" />
                   Add to Cart
                 </button>
-                <button className="btn btn-outline flex items-center">
-                  <Heart size={18} className="mr-2" />
-                  Wishlist
+                <button 
+                  onClick={handleWishlistToggle}
+                  className={`btn btn-outline flex items-center ${isInWishlist ? 'text-red-500 border-red-500 hover:bg-red-50' : ''}`}
+                >
+                  <Heart size={18} className={`mr-2 ${isInWishlist ? 'fill-current' : ''}`} />
+                  {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 </button>
                 <button className="p-3 border border-gray-300 rounded-sm hover:bg-gray-100">
                   <Share2 size={18} aria-label="Share product" />
@@ -297,6 +311,16 @@ const ProductPage = () => {
           </div>
         )}
       </div>
+
+      {/* Quick View Modal */}
+      <AnimatePresence>
+        {showQuickView && selectedProduct && (
+          <QuickViewModal
+            product={selectedProduct}
+            onClose={() => setShowQuickView(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

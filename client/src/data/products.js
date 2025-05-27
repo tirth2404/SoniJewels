@@ -13,8 +13,8 @@ export const products = [
       'Color: F'
     ],
     images: [
-      'https://images.pexels.com/photos/9946153/pexels-photo-9946153.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10984797/pexels-photo-10984797.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/9946153/pexels-photo-9946153.jpeg',
+      'https://images.pexels.com/photos/10984797/pexels-photo-10984797.jpeg'
     ],
     rating: 4.9,
     reviewCount: 128,
@@ -35,8 +35,8 @@ export const products = [
       '18-inch chain length'
     ],
     images: [
-      'https://images.pexels.com/photos/12934506/pexels-photo-12934506.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10984793/pexels-photo-10984793.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/12934506/pexels-photo-12934506.jpeg',
+      'https://images.pexels.com/photos/10984793/pexels-photo-10984793.jpeg'
     ],
     rating: 4.7,
     reviewCount: 86,
@@ -57,8 +57,8 @@ export const products = [
       'Secure clasp closure'
     ],
     images: [
-      'https://images.pexels.com/photos/10650962/pexels-photo-10650962.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10984792/pexels-photo-10984792.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/10650962/pexels-photo-10650962.jpeg',
+      'https://images.pexels.com/photos/10984792/pexels-photo-10984792.jpeg'
     ],
     rating: 4.8,
     reviewCount: 64,
@@ -79,8 +79,8 @@ export const products = [
       'Secure leverback closure'
     ],
     images: [
-      'https://images.pexels.com/photos/12481802/pexels-photo-12481802.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10984813/pexels-photo-10984813.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/12481802/pexels-photo-12481802.jpeg',
+      'https://images.pexels.com/photos/10984813/pexels-photo-10984813.jpeg'
     ],
     rating: 4.6,
     reviewCount: 102,
@@ -101,8 +101,8 @@ export const products = [
       'Custom sizing available'
     ],
     images: [
-      'https://images.pexels.com/photos/10984818/pexels-photo-10984818.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10984854/pexels-photo-10984854.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/10984818/pexels-photo-10984818.jpeg',
+      'https://images.pexels.com/photos/10984854/pexels-photo-10984854.jpeg'
     ],
     rating: 4.9,
     reviewCount: 56,
@@ -123,8 +123,8 @@ export const products = [
       '5mm width'
     ],
     images: [
-      'https://images.pexels.com/photos/12934485/pexels-photo-12934485.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/12934504/pexels-photo-12934504.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/12934485/pexels-photo-12934485.jpeg',
+      'https://images.pexels.com/photos/12934504/pexels-photo-12934504.jpeg'
     ],
     rating: 4.7,
     reviewCount: 93,
@@ -145,8 +145,8 @@ export const products = [
       'Fits most wrist sizes'
     ],
     images: [
-      'https://images.pexels.com/photos/10650968/pexels-photo-10650968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/10650974/pexels-photo-10650974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/10650968/pexels-photo-10650968.jpeg',
+      'https://images.pexels.com/photos/10650974/pexels-photo-10650974.jpeg'
     ],
     rating: 4.8,
     reviewCount: 77,
@@ -167,8 +167,8 @@ export const products = [
       'Clarity: VS2, Color: G'
     ],
     images: [
-      'https://images.pexels.com/photos/12481840/pexels-photo-12481840.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      'https://images.pexels.com/photos/12481802/pexels-photo-12481802.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      'https://images.pexels.com/photos/12481840/pexels-photo-12481840.jpeg',
+      'https://images.pexels.com/photos/12481802/pexels-photo-12481802.jpeg'
     ],
     rating: 4.9,
     reviewCount: 142,

@@ -26,6 +26,8 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 import ShippingPolicyPage from './pages/ShippingPolicyPage.jsx';
 import FeedbackPage from './pages/FeedbackPage.jsx';
+import AboutPage from './pages/AboutPage';
+import { Toaster } from 'react-hot-toast';
 
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
   const { user, isAdmin } = useSelector((state) => state.auth);
@@ -53,6 +55,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-light text-charcoal">
+      <Toaster position="top-right" />
       <Navbar />
       <main className="flex-grow">
         <Routes>
@@ -69,6 +72,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
