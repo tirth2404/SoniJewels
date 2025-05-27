@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -29,44 +28,6 @@ const LoginPage = () => {
     setError('');
     setLoading(true);
 
-    const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
-
-  try {
-    const response = await fetch('http://localhost/register.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        username: formData.name,
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      if (data.isAdmin) {
-        // Redirect to admin dashboard
-        navigate('/adminpage');
-      } else {
-        // Regular user
-        navigate('/');
-      }
-    } else {
-      setError(data.error || 'Signup failed.');
-    }
-  } catch (err) {
-    setError('Network error. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-
     try {
       const response = await fetch('http://localhost/SoniJewels/server/login.php', {
         method: 'POST',
@@ -80,12 +41,19 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       if (response.ok) {
-        dispatch(setUser(data.user)); // Assuming user data is in data.user
+        dispatch(setUser({
+          ...data.user,
+          isAdmin: data.isAdmin
+        }));
+        
         if (data.isAdmin) {
+          console.log('Redirecting to admin page...');
           navigate('/admin');
         } else {
+          console.log('Redirecting to home page...');
           navigate('/');
         }
       } else {

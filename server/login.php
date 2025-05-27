@@ -33,11 +33,11 @@ $email = trim($_POST['email']);
 $password = $_POST['password'];
 
 // Special case for admin login
-if ($email === 'admin@sonijewels.com' && $password === 'SoniJewels@secret') {
+if ($email === 'admin@gmail.com' && $password === 'admin123') {
     $adminUser = [
         'id' => 0,
-        'Username' => 'Sonijewels',
-        'Email' => 'admin@sonijewels.com'
+        'Username' => 'Admin',
+        'Email' => 'admin@gmail.com'
     ];
     echo json_encode([
         'message' => 'Admin login successful',
