@@ -1,90 +1,96 @@
 import React from 'react';
-import { Trash2, ShoppingBag } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../../redux/slices/cartSlice.js';
-import { formatPrice } from '../../utils/formatters.js';
+import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Trash2, ShoppingCart } from 'lucide-react';
+import { removeFromWishlist } from '../../redux/slices/wishlistSlice';
+import { addToCart } from '../../redux/slices/cartSlice';
 
 const WishlistPage = () => {
   const dispatch = useDispatch();
+  const { items } = useSelector((state) => state.wishlist);
 
-  // Sample wishlist data
-  const wishlistItems = [
-    {
-      id: 1,
-      name: 'Diamond Solitaire Ring',
-      price: 29999,
-      image: 'https://images.pexels.com/photos/9946153/pexels-photo-9946153.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      inStock: true
-    },
-    {
-      id: 2,
-      name: 'Ruby Pendant Necklace',
-      price: 15999,
-      image: 'https://images.pexels.com/photos/12934506/pexels-photo-12934506.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      inStock: false
-    }
-  ];
-
-  const handleAddToCart = (item) => {
-    dispatch(addToCart({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      image: item.image
-    }));
+  const handleRemoveFromWishlist = (productId) => {
+    dispatch(removeFromWishlist(productId));
   };
 
-  return (
-    <div className="min-h-screen pt-24 bg-cream-light">
-      <div className="container-custom py-8">
-        <h1 className="text-3xl font-heading mb-8">My Wishlist</h1>
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({ ...product, quantity: 1 }));
+    dispatch(removeFromWishlist(product.id));
+  };
 
-        {wishlistItems.length === 0 ? (
-          <div className="bg-white p-8 rounded-lg shadow-sm text-center">
-            <Heart size={48} className="mx-auto text-gray-300 mb-4" />
-            <h2 className="text-xl font-medium mb-2">Your wishlist is empty</h2>
-            <p className="text-gray-500 mb-6">
-              Add items to your wishlist to keep track of products you love.
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen pt-24 bg-cream-light">
+        <div className="container-custom py-12">
+          <div className="text-center">
+            <h1 className="text-3xl font-heading mb-4">Your Wishlist is Empty</h1>
+            <p className="text-gray-600 mb-8">
+              Add items to your wishlist to keep track of your favorite products.
             </p>
             <Link to="/shop" className="btn btn-primary">
               Continue Shopping
             </Link>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {wishlistItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pt-24 bg-cream-light">
+      <div className="container-custom py-12">
+        <h1 className="text-3xl font-heading mb-8">Your Wishlist</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((item) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg shadow-sm overflow-hidden"
+            >
+              <div className="relative aspect-square">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-48 object-cover"
+                  className="w-full h-full object-cover"
                 />
-                <div className="p-4">
-                  <h3 className="font-medium mb-2">{item.name}</h3>
-                  <p className="text-burgundy font-medium mb-4">
-                    {formatPrice(item.price)}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      className="btn btn-primary flex items-center"
-                      disabled={!item.inStock}
-                    >
-                      <ShoppingBag size={16} className="mr-2" />
-                      {item.inStock ? 'Add to Cart' : 'Out of Stock'}
-                    </button>
-                    <button
-                      className="p-2 text-gray-400 hover:text-burgundy"
-                      aria-label="Remove from wishlist"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
+              </div>
+              
+              <div className="p-4">
+                <Link to={`/product/${item.id}`} className="block">
+                  <h3 className="text-lg font-medium text-gray-900 mb-1 hover:text-gold transition-colors">
+                    {item.name}
+                  </h3>
+                </Link>
+                <p className="text-sm text-gray-500 mb-2 capitalize">{item.category}</p>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-lg font-semibold text-gold">₹{item.price}</span>
+                  <span className="text-sm text-gray-500 capitalize">{item.material}</span>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleAddToCart(item)}
+                    className="flex-1 btn btn-primary flex items-center justify-center"
+                  >
+                    <ShoppingCart size={18} className="mr-2" />
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={() => handleRemoveFromWishlist(item.id)}
+                    className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                    aria-label="Remove from wishlist"
+                  >
+                    <Trash2 size={20} />
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );
