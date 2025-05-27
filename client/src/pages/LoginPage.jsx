@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -28,19 +29,71 @@ const LoginPage = () => {
     setError('');
     setLoading(true);
 
-    try {
-      // Check for admin credentials
-      if (formData.email === 'admin@gmail.com' && formData.password === 'Digiesale') {
-        dispatch(setUser({ email: formData.email }));
-        navigate('/admin');
-      } else if (formData.email === 'user@gmail.com' && formData.password === 'Digiesale') {
-        dispatch(setUser({ email: formData.email }));
-        navigate('/');
+    const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
+
+  try {
+    const response = await fetch('http://localhost/register.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      if (data.isAdmin) {
+        // Redirect to admin dashboard
+        navigate('/adminpage');
       } else {
-        throw new Error('Invalid credentials');
+        // Regular user
+        navigate('/');
+      }
+    } else {
+      setError(data.error || 'Signup failed.');
+    }
+  } catch (err) {
+    setError('Network error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+    try {
+      const response = await fetch('http://localhost/Digiesale_GP/SoniJewels/server/login.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        dispatch(setUser(data.user)); // Assuming user data is in data.user
+        if (data.isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      } else {
+        setError(data.error || 'Login failed. Please try again.');
       }
     } catch (err) {
-      setError('Invalid email or password');
+      console.error('Login error:', err);
+      setError('Network error. Please check if the server is running and try again.');
     } finally {
       setLoading(false);
     }

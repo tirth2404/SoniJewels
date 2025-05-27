@@ -19,7 +19,7 @@ const authSlice = createSlice({
   reducers: {
     setUser(state, action) {
       state.user = action.payload;
-      state.isAdmin = action.payload?.email === 'admin@gmail.com';
+      state.isAdmin = action.payload?.isAdmin;
     },
     updateProfile(state, action) {
       state.profile = { ...state.profile, ...action.payload };

@@ -27,15 +27,48 @@ const SignupPage = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement actual signup logic
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      navigate('/');
+      const response = await fetch('http://localhost/Digiesale_GP/SoniJewels/server/register.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate('/');
+      } else {
+        setError(data.error || 'Signup failed. Please try again.');
+      }
     } catch (err) {
-      setError('Failed to create account. Please try again.');
+      console.error('Signup error:', err);
+      setError('Network error. Please check if the server is running and try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError('');
+  //   setLoading(true);
+
+  //   try {
+  //     // TODO: Implement actual signup logic
+  //     await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+  //     navigate('/');
+  //   } catch (err) {
+  //     setError('Failed to create account. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen pt-24 bg-cream-light">

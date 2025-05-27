@@ -30,6 +30,8 @@ import FeedbackPage from './pages/FeedbackPage.jsx';
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
   const { user, isAdmin } = useSelector((state) => state.auth);
 
+  console.log('ProtectedRoute state:', { user, isAdmin, requiresAuth, requiresAdmin });
+
   if (requiresAuth && !user) {
     return <Navigate to="/login" />;
   }
