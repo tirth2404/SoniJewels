@@ -28,6 +28,8 @@ import ShippingPolicyPage from './pages/ShippingPolicyPage.jsx';
 import FeedbackPage from './pages/FeedbackPage.jsx';
 import AboutPage from './pages/AboutPage';
 import { Toaster } from 'react-hot-toast';
+import AdminFeedbackPage from './pages/admin/FeedbackPage.jsx';
+import AdminCustomerQueriesPage from './pages/admin/CustomerQueriesPage.jsx';
 
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
   const { user, isAdmin } = useSelector((state) => state.auth);
@@ -153,6 +155,24 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          {/* New Admin Routes */}
+          <Route
+             path="/admin/queries"
+             element={
+               <ProtectedRoute requiresAuth requiresAdmin>
+                 <AdminCustomerQueriesPage />
+               </ProtectedRoute>
+             }
+           />
+           <Route
+             path="/admin/feedback"
+             element={
+               <ProtectedRoute requiresAuth requiresAdmin>
+                 <AdminFeedbackPage />
+               </ProtectedRoute>
+             }
+           />
           
           {/* Policy Pages */}
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
