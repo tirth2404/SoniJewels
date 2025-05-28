@@ -78,6 +78,9 @@ const Footer = () => {
                   Best Sellers
                 </button>
               </li>
+              <li>
+                <Link to="/feedback" className="text-gray-300 hover:text-white transition-colors">Feedback</Link>
+              </li>
             </ul>
           </div>
           
