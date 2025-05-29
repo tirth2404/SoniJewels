@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 const ContactPage = () => {
+  const user = useSelector((state) => state.auth.user);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,6 +15,16 @@ const ContactPage = () => {
   
   const [formStatus, setFormStatus] = useState(null);
   
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.Username || '',
+        email: user.Email || '',
+      }));
+    }
+  }, [user]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -21,21 +33,60 @@ const ContactPage = () => {
     }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate form submission
     setFormStatus('submitting');
     
-    setTimeout(() => {
-      setFormStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormStatus('error');
+      alert('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      console.log('Sending form data:', formData); // Debug log
+      
+      const response = await fetch('http://localhost/SoniJewels/server/contact.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          email: formData.email.trim() // Ensure email is trimmed
+        })
       });
-    }, 1500);
+      
+      console.log('Response status:', response.status); // Debug log
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('Response data:', data); // Debug log
+      
+      if (data.status === 'success') {
+        setFormStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+        });
+      } else {
+        setFormStatus('error');
+        console.error('Error:', data.message);
+        alert('Error submitting form: ' + data.message);
+      }
+    } catch (error) {
+      setFormStatus('error');
+      console.error('Error details:', error);
+      alert('Error submitting form: ' + error.message);
+    }
   };
   
   return (
@@ -152,32 +203,42 @@ const ContactPage = () => {
               ) : (
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    {/* <div>
-                      <label htmlFor="name" className="form-label">Your Name</label>
-                      <input 
-                        type="text" 
-                        id="name" 
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="form-input" 
-                        placeholder="John Doe"
-                        required 
-                      />
-                    </div> */}
-                    {/* <div>
-                      <label htmlFor="email" className="form-label">Email Address</label>
-                      <input 
-                        type="email" 
-                        id="email" 
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="form-input" 
-                        placeholder="john@example.com"
-                        required 
-                      />
-                    </div> */}
+                    {!user && (
+                      <>
+                        <div>
+                          <label htmlFor="name" className="form-label">Your Name</label>
+                          <input 
+                            type="text" 
+                            id="name" 
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="form-input" 
+                            placeholder="John Doe"
+                            required 
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="email" className="form-label">Email Address</label>
+                          <input 
+                            type="email" 
+                            id="email" 
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="form-input" 
+                            placeholder="john@example.com"
+                            required 
+                          />
+                        </div>
+                      </>
+                    )}
+                    {user && (
+                      <>
+                        <input type="hidden" name="name" value={formData.name} />
+                        <input type="hidden" name="email" value={formData.email} />
+                      </>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
