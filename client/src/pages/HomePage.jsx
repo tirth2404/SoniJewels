@@ -31,7 +31,7 @@ const HomePage = () => {
       subtitle: 'Timeless pieces that capture the brilliance of nature\'s most precious gem.'
     }
   ];
-
+  
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchProducts());
@@ -57,7 +57,7 @@ const HomePage = () => {
       }
     }
   }, [location]);
-
+  
   // Featured products
   const featuredProducts = products.filter(product => product.featured);
   // New Arrivals (last 4 products)
@@ -76,7 +76,7 @@ const HomePage = () => {
       }
     }
   };
-
+  
   return (
     <div>
       {/* Hero Section with Slider */}
@@ -91,7 +91,7 @@ const HomePage = () => {
             className="absolute inset-0 bg-center bg-cover"
             style={{ backgroundImage: `url(${heroSlides[currentSlide].image})` }}
           >
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           </motion.div>
         </AnimatePresence>
 
@@ -110,18 +110,18 @@ const HomePage = () => {
             </p>
             <div className="flex flex-wrap gap-4">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/shop" className="btn btn-primary">
-                  Explore Collection
-                </Link>
+              <Link to="/shop" className="btn btn-primary">
+                Explore Collection
+              </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/contact" className="btn btn-outline border-white text-white hover:bg-white hover:text-charcoal">
-                  Visit Showroom
-                </Link>
+              <Link to="/contact" className="btn btn-outline border-white text-white hover:bg-white hover:text-charcoal">
+                Visit Showroom
+              </Link>
               </motion.div>
             </div>
           </motion.div>
-        </div>
+          </div>
 
         {/* Slide Indicators */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
@@ -208,8 +208,8 @@ const HomePage = () => {
                   Shop Now
                 </Link>
                 <Link to="/about" className="btn btn-outline">
-                  Our Story
-                </Link>
+                Our Story
+              </Link>
               </div>
             </div>
             

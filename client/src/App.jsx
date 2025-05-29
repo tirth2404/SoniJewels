@@ -25,10 +25,10 @@ import SettingsPage from './pages/user/SettingsPage.jsx';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 import ShippingPolicyPage from './pages/ShippingPolicyPage.jsx';
-import FeedbackPage from './pages/FeedbackPage.jsx';
+import UserFeedbackPage from './pages/UserFeedbackPage.jsx';
 import AboutPage from './pages/AboutPage';
 import { Toaster } from 'react-hot-toast';
-import AdminFeedbackPage from './pages/admin/FeedbackPage.jsx';
+import AdminFeedbackPage from './pages/admin/AdminFeedbackPage.jsx';
 import AdminCustomerQueriesPage from './pages/admin/CustomerQueriesPage.jsx';
 
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
@@ -178,7 +178,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsOfServicePage />} />
           <Route path="/shipping" element={<ShippingPolicyPage />} />
-          <Route path="/feedback" element={<FeedbackPage />} />
+          <Route path="/feedback" element={<UserFeedbackPage />} />
           
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -29,8 +29,8 @@ const ProductCard = ({ product, onQuickView }) => {
     <div className="bg-white rounded-lg shadow-sm overflow-hidden group">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden">
-        <img
-          src={product.images[0]}
+        <img 
+          src={product.images[0]} 
           alt={product.name}
           className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
