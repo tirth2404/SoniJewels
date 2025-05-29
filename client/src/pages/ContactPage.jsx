@@ -64,8 +64,9 @@ const ContactPage = () => {
                 <div>
                   <h3 className="font-medium mb-1">Visit Our Store</h3>
                   <p className="text-gray-600">
-                    123 Jewellery Lane, Diamond District<br />
-                    Mumbai, 400001, India
+                    JAMNA CHEMBERS SHOP NO.A-7 GROUND FLOOR<br />
+                    KANAIYA WADI, OLD SHAKTI VIJAY VARACHHA ROAD<br />
+                    Gujarat, India
                   </p>
                 </div>
               </div>
@@ -77,8 +78,7 @@ const ContactPage = () => {
                 <div>
                   <h3 className="font-medium mb-1">Call Us</h3>
                   <p className="text-gray-600">
-                    <a href="tel:+919876543210" className="hover:text-burgundy">+91 98765 43210</a><br />
-                    <a href="tel:+919876543211" className="hover:text-burgundy">+91 98765 43211</a>
+                    <a href="tel:+919427171850" className="hover:text-burgundy">+91 94271 71850</a>
                   </p>
                 </div>
               </div>
@@ -90,8 +90,7 @@ const ContactPage = () => {
                 <div>
                   <h3 className="font-medium mb-1">Email Us</h3>
                   <p className="text-gray-600">
-                    <a href="mailto:info@sonijewellers.com" className="hover:text-burgundy">info@sonijewellers.com</a><br />
-                    <a href="mailto:sales@sonijewellers.com" className="hover:text-burgundy">sales@sonijewellers.com</a>
+                    <a href="mailto:vipul478langaliya@gmail.com" className="hover:text-burgundy">vipul478langaliya@gmail.com</a>
                   </p>
                 </div>
               </div>
@@ -114,7 +113,7 @@ const ContactPage = () => {
             <div className="bg-white p-4 rounded-md shadow-sm">
               <div className="aspect-video bg-gray-200">
                 <iframe 
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30168.499557405728!2d72.81400082535551!3d19.058983936088466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c8e123f8d51f%3A0xb9f815648d8236f4!2sBandra%20West%2C%20Mumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1684124283880!5m2!1sen!2sin" 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3719.1234567890123!2d72.81400082535551!3d21.058983936088466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7c8e123f8d51f%3A0xb9f815648d8236f4!2sVarachha%20Road%2C%20Surat%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1684124283880!5m2!1sen!2sin" 
                   width="100%" 
                   height="100%" 
                   style={{ border: 0 }}
@@ -153,7 +152,7 @@ const ContactPage = () => {
               ) : (
                 <form onSubmit={handleSubmit}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
+                    {/* <div>
                       <label htmlFor="name" className="form-label">Your Name</label>
                       <input 
                         type="text" 
@@ -165,8 +164,8 @@ const ContactPage = () => {
                         placeholder="John Doe"
                         required 
                       />
-                    </div>
-                    <div>
+                    </div> */}
+                    {/* <div>
                       <label htmlFor="email" className="form-label">Email Address</label>
                       <input 
                         type="email" 
@@ -178,7 +177,7 @@ const ContactPage = () => {
                         placeholder="john@example.com"
                         required 
                       />
-                    </div>
+                    </div> */}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
