@@ -1,7 +1,12 @@
 <?php
-// Enable error reporting
+// Start output buffering to prevent accidental output
+ob_start();
+
+// Log errors to a file instead of displaying them
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/php_error.log');
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Log file setup
 $logFile = __DIR__ . '/contact_debug.log';
@@ -94,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($result) {
             // Send success response
+            ob_end_clean();
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Contact form submitted successfully'
