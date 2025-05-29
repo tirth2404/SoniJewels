@@ -17,10 +17,11 @@ const ContactPage = () => {
   
   useEffect(() => {
     if (user) {
+      console.log('User state in ContactPage:', user); // Debug log
       setFormData((prev) => ({
         ...prev,
-        name: user.Username || '',
-        email: user.Email || '',
+        name: user.Username || user.username || '',
+        email: user.Email || user.email || '',
       }));
     }
   }, [user]);
