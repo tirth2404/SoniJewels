@@ -1,5 +1,5 @@
 <?php
-require_once 'config/database.php';
+require_once '../config/database.php';
 
 // Set headers
 header('Access-Control-Allow-Origin: *');
@@ -23,44 +23,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate required fields
-        $requiredFields = ['name', 'email', 'message'];
+        $requiredFields = ['name', 'description', 'price', 'category', 'material', 'stock'];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
                 throw new Exception("Missing required field: $field");
             }
         }
 
-        // Validate email
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Invalid email format');
-        }
-
         // Prepare SQL statement
         $stmt = $conn->prepare("
-            INSERT INTO contact_messages (name, email, message)
-            VALUES (?, ?, ?)
+            INSERT INTO products (name, description, price, category, material, stock, featured, images, features)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
             throw new Exception("Failed to prepare statement: " . $conn->error);
         }
 
+        // Convert arrays to JSON
+        $images = isset($data['images']) ? json_encode($data['images']) : '[]';
+        $features = isset($data['features']) ? json_encode($data['features']) : '[]';
+        $featured = isset($data['featured']) ? (int)$data['featured'] : 0;
+
         // Bind parameters
         $stmt->bind_param(
-            "sss",
+            "ssdssiiss",
             $data['name'],
-            $data['email'],
-            $data['message']
+            $data['description'],
+            $data['price'],
+            $data['category'],
+            $data['material'],
+            $data['stock'],
+            $featured,
+            $images,
+            $features
         );
 
         // Execute statement
         if (!$stmt->execute()) {
-            throw new Exception("Failed to save message: " . $stmt->error);
+            throw new Exception("Failed to add product: " . $stmt->error);
         }
+
+        $productId = $conn->insert_id;
 
         echo json_encode([
             'status' => 'success',
-            'message' => 'Message sent successfully'
+            'message' => 'Product added successfully',
+            'data' => [
+                'id' => $productId
+            ]
         ]);
 
     } catch (Exception $e) {

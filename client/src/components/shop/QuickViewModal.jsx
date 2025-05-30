@@ -21,6 +21,14 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
 
   if (!product) return null;
 
+  // Get the first image from the images array
+  const getImageUrl = () => {
+    if (!product.images || !product.images.length) return '/placeholder.jpg';
+    const imageUrl = product.images[0];
+    if (imageUrl.startsWith('blob:')) return imageUrl;
+    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -59,7 +67,7 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                   {/* Product Image */}
                   <div className="relative group">
                     <img
-                      src={product.images[0]}
+                      src={getImageUrl()}
                       alt={product.name}
                       className="w-full h-auto rounded-lg"
                     />
@@ -74,7 +82,7 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                     {/* Product Specifications */}
                     <div className="space-y-2 mb-6">
                       <p><span className="font-semibold">Material:</span> {product.material}</p>
-                      <p><span className="font-semibold">Category:</span> {product.category}</p>
+                      <p><span className="font-semibold">Category:</span> <span className="capitalize">{product.category}</span></p>
                       {product.features && (
                         <div>
                           <p className="font-semibold mb-2">Features:</p>

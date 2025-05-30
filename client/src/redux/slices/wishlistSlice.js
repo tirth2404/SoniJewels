@@ -1,5 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return '/placeholder.jpg';
+  if (imageUrl.startsWith('blob:')) return imageUrl;
+  return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+};
+
 const initialState = {
   items: [],
 };
@@ -8,28 +14,28 @@ const wishlistSlice = createSlice({
   name: 'wishlist',
   initialState,
   reducers: {
-    addToWishlist: (state, action) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
-      if (!existingItem) {
+    addToWishlist(state, action) {
+      const newItem = action.payload;
+      if (!state.items.find(item => item.id === newItem.id)) {
         state.items.push({
-          id: action.payload.id,
-          name: action.payload.name,
-          price: action.payload.price,
-          image: action.payload.images[0],
-          category: action.payload.category,
-          material: action.payload.material
+          id: newItem.id,
+          name: newItem.name,
+          price: newItem.price,
+          image: getImageUrl(newItem.images?.[0]), // Get first image from images array
+          category: newItem.category,
+          material: newItem.material
         });
       }
     },
-    removeFromWishlist: (state, action) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+    removeFromWishlist(state, action) {
+      const id = action.payload;
+      state.items = state.items.filter(item => item.id !== id);
     },
-    clearWishlist: (state) => {
+    clearWishlist(state) {
       state.items = [];
     }
   }
 });
 
 export const { addToWishlist, removeFromWishlist, clearWishlist } = wishlistSlice.actions;
-
 export default wishlistSlice.reducer; 

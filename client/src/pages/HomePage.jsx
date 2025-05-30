@@ -58,10 +58,16 @@ const HomePage = () => {
     }
   }, [location]);
   
-  // Featured products
-  const featuredProducts = products.filter(product => product.featured);
+  // Featured products (last 4 featured products)
+  const featuredProducts = [...products]
+    .filter(product => product.featured === 1)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 4);
+
   // New Arrivals (last 4 products)
-  const newArrivals = products.slice(-4);
+  const newArrivals = [...products]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 4);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -249,58 +255,43 @@ const HomePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {status === 'loading' ? (
               // Loading skeleton
-              Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="bg-white rounded-md shadow-sm animate-pulse">
-                  <div className="w-full h-64 bg-gray-200"></div>
-                  <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-5 bg-gray-200 rounded w-2/4"></div>
-                  </div>
+              Array(4).fill().map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="bg-gray-200 rounded-md h-64 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                 </div>
               ))
-            ) : newArrivals.length > 0 ? (
-              newArrivals.map(product => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -10 }}
-                  className="group"
-                >
-                  <ProductCard 
-                    product={product} 
-                    onQuickView={() => setSelectedProduct(product)}
-                  />
-                </motion.div>
-              ))
+            ) : status === 'failed' ? (
+              <div className="col-span-full text-center text-red-500">
+                Failed to load products
+              </div>
             ) : (
-              <p>No new arrivals found</p>
+              newArrivals.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onQuickView={() => setSelectedProduct(product)}
+                />
+              ))
             )}
-          </div>
-          
-          <div className="mt-8 text-center md:hidden">
-            <Link to="/shop" className="btn btn-primary">
-              View All Products
-            </Link>
           </div>
         </div>
       </motion.section>
       
-      {/* Featured Collection */}
+      {/* Featured Products Section */}
       <motion.section
-        id="featured-collection"
+        id="featured"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="py-20 bg-cream-light"
+        className="py-20 bg-cream"
       >
         <div className="container-custom">
           <div className="flex justify-between items-end mb-10">
             <div>
               <h2 className="text-3xl md:text-4xl font-heading mb-2">Featured Collection</h2>
-              <p className="text-gray-600">Discover our most exceptional pieces</p>
+              <p className="text-gray-600">Our handpicked selection of finest pieces</p>
             </div>
             <Link 
               to="/shop" 
@@ -310,44 +301,29 @@ const HomePage = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {status === 'loading' ? (
               // Loading skeleton
-              Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="bg-white rounded-md shadow-sm animate-pulse">
-                  <div className="w-full h-64 bg-gray-200"></div>
-                  <div className="p-4">
-                    <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                    <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-5 bg-gray-200 rounded w-2/4"></div>
-                  </div>
+              Array(4).fill().map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="bg-gray-200 rounded-md h-64 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                 </div>
               ))
-            ) : featuredProducts.length > 0 ? (
-              featuredProducts.map(product => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -10 }}
-                  className="group"
-                >
-                  <ProductCard 
-                    product={product} 
-                    onQuickView={() => setSelectedProduct(product)}
-                  />
-                </motion.div>
-              ))
+            ) : status === 'failed' ? (
+              <div className="col-span-full text-center text-red-500">
+                Failed to load products
+              </div>
             ) : (
-              <p>No featured products found</p>
+              featuredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onQuickView={() => setSelectedProduct(product)}
+                />
+              ))
             )}
-          </div>
-          
-          <div className="mt-8 text-center md:hidden">
-            <Link to="/shop" className="btn btn-primary">
-              View All Products
-            </Link>
           </div>
         </div>
       </motion.section>

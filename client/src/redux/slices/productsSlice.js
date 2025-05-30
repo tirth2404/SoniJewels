@@ -1,16 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { products } from '../../data/products.js';
+import axios from 'axios';
 
-// In a real app, you would fetch products from an API
+const API_URL = 'http://localhost/SoniJewels/server/products';
+
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
   async (_, { rejectWithValue }) => {
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 600));
-      return products;
+      const response = await axios.get(`${API_URL}/get_products.php`);
+      
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message);
+      }
+      
+      return response.data.data;
     } catch (error) {
-      return rejectWithValue('Failed to fetch products');
+      return rejectWithValue(error.message || 'Failed to fetch products');
     }
   }
 );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -11,66 +12,76 @@ import {
   Share2,
   Check 
 } from 'lucide-react';
-import { fetchProducts } from '../redux/slices/productsSlice.js';
 import { addToCart } from '../redux/slices/cartSlice.js';
-import { formatPrice } from '../utils/formatters.js';
 import ProductCard from '../components/shop/ProductCard.jsx';
 import { addToWishlist, removeFromWishlist } from '../redux/slices/wishlistSlice';
 import QuickViewModal from '../components/shop/QuickViewModal';
 import { toast } from 'react-hot-toast';
+
+const API_URL = 'http://localhost/SoniJewels/server/products';
 
 const ProductPage = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const { products, status } = useSelector((state) => state.products);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   
   const [product, setProduct] = useState(null);
+  const [products, setProducts] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [notification, setNotification] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showQuickView, setShowQuickView] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   
   const isInWishlist = wishlistItems.some(item => item.id === product?.id);
-  
-  // Fetch products if not already loaded
+
+  // Fetch all products
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchProducts());
-    }
-  }, [dispatch, status]);
-  
-  // Find product from the store
-  useEffect(() => {
-    if (products.length > 0) {
-      const foundProduct = products.find(p => p.id === parseInt(id));
-      if (foundProduct) {
-        setProduct(foundProduct);
-      } else {
-        navigate('/not-found');
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/get_products.php`);
+        if (response.data.status === 'success') {
+          setProducts(response.data.data);
+        } else {
+          setError(response.data.message);
+        }
+      } catch (err) {
+        setError('Failed to fetch products');
+        console.error('Error fetching products:', err);
       }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Fetch specific product
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/get_product.php?id=${id}`);
+        if (response.data.status === 'success') {
+          setProduct(response.data.data);
+        } else {
+          setError(response.data.message);
+          navigate('/not-found');
+        }
+      } catch (err) {
+        setError('Failed to fetch product');
+        console.error('Error fetching product:', err);
+        navigate('/not-found');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchProduct();
     }
-  }, [id, products, navigate]);
-  
-  if (!product && status !== 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-medium mb-2">Product Not Found</h2>
-          <p className="mb-4">The product you're looking for doesn't exist.</p>
-          <button 
-            onClick={() => navigate('/shop')}
-            className="btn btn-primary"
-          >
-            Back to Shop
-          </button>
-        </div>
-      </div>
-    );
-  }
+  }, [id, navigate]);
   
   const handleImageNav = (direction) => {
     if (!product) return;
@@ -106,12 +117,36 @@ const ProductPage = () => {
     setShowQuickView(true);
   };
   
-  // Related products - same category
-  const relatedProducts = products
-    .filter(p => p.category === product?.category && p.id !== product?.id)
-    .slice(0, 4);
+  // Get the first image from the images array
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return '/placeholder.jpg';
+    if (imageUrl.startsWith('blob:')) return imageUrl;
+    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+  };
+
+  // Get related products based on category and material
+  const getRelatedProducts = () => {
+    if (!product || !products.length) return [];
+
+    // Get products with same category or material
+    const sameCategoryProducts = products.filter(p => 
+      p.category === product.category && p.id !== product.id
+    );
+    
+    const sameMaterialProducts = products.filter(p => 
+      p.material === product.material && p.id !== product.id
+    );
+
+    // Combine and remove duplicates
+    const combinedProducts = [...sameCategoryProducts, ...sameMaterialProducts];
+    const uniqueProducts = Array.from(new Map(combinedProducts.map(item => [item.id, item])).values());
+
+    // Randomly select up to 4 products
+    const shuffled = uniqueProducts.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 4);
+  };
   
-  if (status === 'loading') {
+  if (loading) {
     return (
       <div className="min-h-screen pt-24 bg-cream-light">
         <div className="container-custom py-8">
@@ -129,17 +164,43 @@ const ProductPage = () => {
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen pt-24 bg-cream-light flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-medium mb-2">Error</h2>
+          <p className="text-red-500 mb-4">{error}</p>
+          <button 
+            onClick={() => navigate('/shop')}
+            className="btn btn-primary"
+          >
+            Back to Shop
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen pt-24 bg-cream-light flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-medium mb-2">Product Not Found</h2>
+          <p className="mb-4">The product you're looking for doesn't exist.</p>
+          <button 
+            onClick={() => navigate('/shop')}
+            className="btn btn-primary"
+          >
+            Back to Shop
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen pt-24 bg-cream-light">
-      {/* Notification */}
-      {notification && (
-        <div className="fixed top-20 right-4 bg-burgundy text-white px-4 py-2 rounded-md shadow-md z-50 flex items-center animate-fade-in">
-          <Check size={18} className="mr-2" />
-          {notification}
-        </div>
-      )}
-      
       <div className="container-custom py-8">
         {/* Product layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -147,7 +208,7 @@ const ProductPage = () => {
           <div>
             <div className="relative bg-white rounded-md overflow-hidden mb-4">
               <img 
-                src={product?.images[currentImageIndex]} 
+                src={getImageUrl(product?.images[currentImageIndex])} 
                 alt={product?.name} 
                 className="w-full h-auto max-h-[500px] object-contain mx-auto"
               />
@@ -170,9 +231,9 @@ const ProductPage = () => {
             </div>
             
             {/* Thumbnail navigation */}
-            {product?.images.length > 1 && (
+            {product?.images && product.images.length > 1 && (
               <div className="flex space-x-2">
-                {product?.images.map((image, index) => (
+                {product.images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
@@ -181,7 +242,7 @@ const ProductPage = () => {
                     }`}
                   >
                     <img 
-                      src={image} 
+                      src={getImageUrl(image)} 
                       alt={`${product.name} thumbnail ${index + 1}`} 
                       className="w-16 h-16 object-cover"
                     />
@@ -193,103 +254,64 @@ const ProductPage = () => {
           
           {/* Product details */}
           <div>
-            <div className="mb-2 text-sm capitalize text-gray-500">
-              {product?.category}
-            </div>
-            
-            <h1 className="text-3xl md:text-4xl font-heading mb-2">
-              {product?.name}
-            </h1>
-            
+            <h1 className="text-3xl font-heading font-semibold mb-2">{product?.name}</h1>
             <div className="flex items-center mb-4">
-              <div className="flex mr-2">
+              <div className="flex text-gold">
                 {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    size={16} 
-                    className={i < Math.floor(product?.rating) ? 'text-gold fill-gold' : 'text-gray-300'} 
+                  <Star
+                    key={i}
+                    size={20}
+                    className={i < Math.floor(product?.rating || 0) ? 'fill-current' : ''}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
-                {product?.rating} ({product?.reviewCount} reviews)
+              <span className="text-sm text-gray-500 ml-2">
+                ({product?.reviews?.length || 0} reviews)
               </span>
             </div>
             
-            <p className="text-2xl font-medium text-burgundy mb-6">
-              {formatPrice(product?.price)}
-            </p>
+            <p className="text-2xl font-semibold text-gold mb-6">₹{product?.price}</p>
             
-            <p className="text-gray-700 mb-6">
-              {product?.description}
-            </p>
-            
-            {/* Features list */}
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Features:</h3>
-              <ul className="space-y-1">
-                {product?.features.map((feature, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check size={16} className="text-burgundy mt-1 mr-2" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="prose prose-sm text-gray-600 mb-8">
+              <p>{product?.description}</p>
             </div>
             
-            {/* Add to cart */}
-            <div className="mb-6">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex border border-gray-300 rounded-sm">
-                  <button
-                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                    className="px-3 py-2 border-r border-gray-300"
-                    aria-label="Decrease quantity"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(prev => prev + 1)}
-                    className="px-3 py-2 border-l border-gray-300"
-                    aria-label="Increase quantity"
-                  >
-                    +
-                  </button>
-                </div>
-                <div className="text-sm text-gray-500">
-                  {product?.inStock ? (
-                    <span className="text-green-600">In Stock</span>
-                  ) : (
-                    <span className="text-red-600">Out of Stock</span>
-                  )}
-                </div>
+            {/* Features */}
+            {product?.features && product.features.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-3">Features</h3>
+                <ul className="list-disc list-inside space-y-1 text-gray-600">
+                  {product.features.map((feature, index) => (
+                    <li key={index}>{feature}</li>
+                  ))}
+                </ul>
               </div>
-              
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  className="btn btn-primary flex items-center"
-                  disabled={!product?.inStock}
-                >
-                  <ShoppingBag size={18} className="mr-2" />
-                  Add to Cart
-                </button>
-                <button 
-                  onClick={handleWishlistToggle}
-                  className={`btn btn-outline flex items-center ${isInWishlist ? 'text-red-500 border-red-500 hover:bg-red-50' : ''}`}
-                >
-                  <Heart size={18} className={`mr-2 ${isInWishlist ? 'fill-current' : ''}`} />
-                  {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                </button>
-                <button className="p-3 border border-gray-300 rounded-sm hover:bg-gray-100">
-                  <Share2 size={18} aria-label="Share product" />
-                </button>
-              </div>
+            )}
+            
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={handleAddToCart}
+                className="btn btn-primary flex items-center"
+                disabled={!product?.inStock}
+              >
+                <ShoppingBag size={18} className="mr-2" />
+                Add to Cart
+              </button>
+              <button 
+                onClick={handleWishlistToggle}
+                className={`btn btn-outline flex items-center ${isInWishlist ? 'text-red-500 border-red-500 hover:bg-red-50' : ''}`}
+              >
+                <Heart size={18} className={`mr-2 ${isInWishlist ? 'fill-current' : ''}`} />
+                {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              </button>
+              <button className="p-3 border border-gray-300 rounded-sm hover:bg-gray-100">
+                <Share2 size={18} aria-label="Share product" />
+              </button>
             </div>
             
             {/* Additional info */}
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-gray-200 pt-4 mt-8">
               <div className="text-sm text-gray-500 space-y-1">
                 <p>Material: <span className="capitalize">{product?.material}</span></p>
                 <p>SKU: JWLRY-{product?.id.toString().padStart(4, '0')}</p>
@@ -300,12 +322,16 @@ const ProductPage = () => {
         </div>
         
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
+        {getRelatedProducts().length > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-heading mb-6">You May Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+              {getRelatedProducts().map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  product={product}
+                  onQuickView={handleQuickView}
+                />
               ))}
             </div>
           </div>

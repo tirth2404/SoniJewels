@@ -1,5 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const getImageUrl = (imageUrl) => {
+  if (!imageUrl) return '/placeholder.jpg';
+  if (imageUrl.startsWith('blob:')) return imageUrl;
+  return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+};
+
 const initialState = {
   items: [],
   totalQuantity: 0,
@@ -19,7 +25,7 @@ const cartSlice = createSlice({
           id: newItem.id,
           name: newItem.name,
           price: newItem.price,
-          image: newItem.image,
+          image: getImageUrl(newItem.images?.[0]),
           quantity: 1,
           totalPrice: newItem.price,
         });

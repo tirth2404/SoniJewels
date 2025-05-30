@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, Heart, ShoppingCart } from 'lucide-react';
@@ -10,6 +10,7 @@ const ProductCard = ({ product, onQuickView }) => {
   const dispatch = useDispatch();
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const isInWishlist = wishlistItems.some(item => item.id === product.id);
+  const [imageError, setImageError] = useState(false);
 
   const handleWishlistToggle = (e) => {
     e.preventDefault();
@@ -25,22 +26,42 @@ const ProductCard = ({ product, onQuickView }) => {
     dispatch(addToCart({ ...product, quantity: 1 }));
   };
 
+  const handleQuickView = (e) => {
+    e.preventDefault();
+    if (onQuickView) {
+      onQuickView(product);
+    }
+  };
+
+  // Get the first image from the images array or use a default image
+  const getImageUrl = () => {
+    if (imageError) return '/placeholder.jpg';
+    if (!product.images || !product.images.length) return '/placeholder.jpg';
+    
+    const imageUrl = product.images[0];
+    // If it's already a blob URL, use it directly
+    if (imageUrl.startsWith('blob:')) return imageUrl;
+    // Otherwise, construct the server URL
+    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden group">
       {/* Product Image */}
       <div className="relative aspect-square overflow-hidden">
         <img 
-          src={product.images[0]} 
+          src={getImageUrl()} 
           alt={product.name}
           className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
+          onError={() => setImageError(true)}
         />
         
         {/* Quick Actions */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
           <div className="flex space-x-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
             <button
-              onClick={() => onQuickView(product)}
+              onClick={handleQuickView}
               className="p-2 bg-white rounded-full shadow-md hover:bg-gold hover:text-white transition-colors"
               aria-label="Quick View"
             >
@@ -75,7 +96,7 @@ const ProductCard = ({ product, onQuickView }) => {
             {product.name}
           </h3>
         </Link>
-        <p className="text-sm text-gray-500 mb-2">{product.category}</p>
+        <p className="text-sm text-gray-500 mb-2 capitalize">{product.category}</p>
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold text-gold">₹{product.price}</span>
           {product.oldPrice && (
