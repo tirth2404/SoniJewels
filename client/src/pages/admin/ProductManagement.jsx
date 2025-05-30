@@ -75,7 +75,8 @@ const ProductManagement = () => {
 
       if (response.data.status === 'success') {
         // Add new image URLs to state
-        setImages([...images, ...response.data.urls]);
+        // setImages([...images, ...response.data.urls]);
+        setImages([...images, ...response.data.data.urls]);
       } else {
         setError('Failed to upload images');
       }
@@ -210,7 +211,7 @@ const ProductManagement = () => {
                         <div className="h-10 w-10 flex-shrink-0">
                           <img
                             className="h-10 w-10 rounded object-cover"
-                            src={`http://localhost/SoniJewels/server/uploads/${product.images[0]}`}
+                            src={`http://localhost${product.images[0].replace(/\\/g, '/')}`}
                             alt={product.name}
                           />
                         </div>
@@ -390,7 +391,7 @@ const ProductManagement = () => {
                     {images.map((image, index) => (
                       <div key={index} className="relative aspect-square group">
                         <img
-                          src={`http://localhost/SoniJewels/server/uploads/${image}`}
+                          src={`http://localhost${image.replace(/\\/g, '/')}`}
                           alt={`Product image ${index + 1}`}
                           className="w-full h-full object-cover rounded-lg shadow-sm"
                         />
