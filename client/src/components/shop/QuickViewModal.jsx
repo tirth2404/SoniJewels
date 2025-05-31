@@ -26,7 +26,7 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
     if (!product.images || !product.images.length) return '/placeholder.jpg';
     const imageUrl = product.images[0];
     if (imageUrl.startsWith('blob:')) return imageUrl;
-    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+    return `http://localhost${imageUrl}`;
   };
 
   return (
@@ -50,10 +50,10 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6"
+                className="relative w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6 max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-4 sticky top-0 bg-white z-10 pb-4">
                   <h2 className="text-2xl font-heading font-semibold">{product.name}</h2>
                   <button
                     onClick={onClose}
@@ -75,9 +75,11 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                   </div>
 
                   {/* Product Details */}
-                  <div>
+                  <div className="overflow-y-auto">
                     <p className="text-2xl font-semibold text-gold mb-4">₹{product.price}</p>
-                    <p className="text-gray-600 mb-6">{product.description}</p>
+                    <div className="text-gray-600 mb-6 max-h-[200px] overflow-y-auto">
+                      <p>{product.description}</p>
+                    </div>
 
                     {/* Product Specifications */}
                     <div className="space-y-2 mb-6">
@@ -96,7 +98,7 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-4">
+                    <div className="flex flex-wrap gap-4 sticky bottom-0 bg-white pt-4">
                       <button 
                         onClick={handleAddToCart}
                         className="btn btn-primary flex items-center"
@@ -113,6 +115,7 @@ const QuickViewModal = ({ isOpen, onClose, product }) => {
                       </button>
                       <Link
                         to={`/product/${product.id}`}
+                        onClick={onClose}
                         className="btn btn-outline"
                       >
                         View Full Details

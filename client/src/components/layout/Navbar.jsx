@@ -109,12 +109,13 @@ const Navbar = () => {
             </nav>
             
             <div className="flex items-center">
-              <button 
+              <Link
+                to="/wishlist"
                 className="p-2 hover:text-burgundy transition-colors"
-                aria-label="Search"
+                aria-label="Wishlist"
               >
-                <Search size={20} />
-              </button>
+                <Heart size={20} />
+              </Link>
               
               <button 
                 className="p-2 hover:text-burgundy transition-colors relative"
@@ -155,13 +156,6 @@ const Navbar = () => {
                       >
                         <Package size={16} className="mr-2" />
                         Orders
-                      </Link>
-                      <Link
-                        to="/wishlist"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <Heart size={16} className="mr-2" />
-                        Wishlist
                       </Link>
                       <Link
                         to="/reviews"

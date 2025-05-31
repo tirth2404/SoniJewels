@@ -117,11 +117,10 @@ const ProductPage = () => {
     setShowQuickView(true);
   };
   
-  // Get the first image from the images array
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return '/placeholder.jpg';
     if (imageUrl.startsWith('blob:')) return imageUrl;
-    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+    return `http://localhost${imageUrl}`;
   };
 
   // Get related products based on category and material
@@ -326,10 +325,10 @@ const ProductPage = () => {
           <div className="mt-16">
             <h2 className="text-2xl font-heading mb-6">You May Also Like</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {getRelatedProducts().map(product => (
+              {getRelatedProducts().map(relatedProduct => (
                 <ProductCard 
-                  key={product.id} 
-                  product={product}
+                  key={relatedProduct.id} 
+                  product={relatedProduct}
                   onQuickView={handleQuickView}
                 />
               ))}
@@ -342,8 +341,12 @@ const ProductPage = () => {
       <AnimatePresence>
         {showQuickView && selectedProduct && (
           <QuickViewModal
+            isOpen={showQuickView}
             product={selectedProduct}
-            onClose={() => setShowQuickView(false)}
+            onClose={() => {
+              setShowQuickView(false);
+              setSelectedProduct(null);
+            }}
           />
         )}
       </AnimatePresence>

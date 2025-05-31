@@ -42,7 +42,7 @@ const ProductCard = ({ product, onQuickView }) => {
     // If it's already a blob URL, use it directly
     if (imageUrl.startsWith('blob:')) return imageUrl;
     // Otherwise, construct the server URL
-    return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+    return `http://localhost${imageUrl}`;
   };
 
   return (

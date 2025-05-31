@@ -97,14 +97,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/wishlist"
-            element={
-              <ProtectedRoute requiresAuth>
-                <WishlistPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route
             path="/reviews"
             element={

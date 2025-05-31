@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const getImageUrl = (imageUrl) => {
   if (!imageUrl) return '/placeholder.jpg';
   if (imageUrl.startsWith('blob:')) return imageUrl;
-  return `http://localhost/SoniJewels/server/uploads/${imageUrl}`;
+  return `http://localhost${imageUrl}`;
 };
 
 const initialState = {

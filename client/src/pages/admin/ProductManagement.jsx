@@ -108,7 +108,8 @@ const ProductManagement = () => {
     try {
       if (selectedProduct) {
         // Update existing product
-        const response = await axios.put(`${API_URL}/update_product.php?id=${selectedProduct.id}`, productData);
+        productData.id = selectedProduct.id;
+        const response = await axios.put(`${API_URL}/update_product.php`, productData);
         if (response.data.status === 'success') {
           fetchProducts();
           setIsModalOpen(false);
