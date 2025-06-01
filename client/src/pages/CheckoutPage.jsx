@@ -1,30 +1,107 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, CreditCard, CheckCircle } from 'lucide-react';
 import { formatPrice } from '../utils/formatters.js';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 const CheckoutPage = () => {
   const { items, totalAmount } = useSelector((state) => state.cart);
+  const user = useSelector((state) => state.auth.user);
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  
+  const [shippingDetails, setShippingDetails] = useState({
+    First_name: '',
+    Last_name: '',
+    phone: '',
+    Address: '',
+    City: '',
+    State: '',
+    Zip_code: '',
+    Country: '',
+  });
+  const [paymentDetails, setPaymentDetails] = useState({
+    paymentMethod: 'credit-card',
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate('/cart');
+      toast.error('Your cart is empty.');
+    }
+  }, [items, navigate]);
+
+  const handleShippingInputChange = (e) => {
+    const { id, value } = e.target;
+    setShippingDetails({ ...shippingDetails, [id]: value });
+  };
+
   const handleSubmitShipping = (e) => {
+    console.log('handleSubmitShipping triggered');
     e.preventDefault();
     setStep(2);
+    console.log('Step set to 2');
     window.scrollTo(0, 0);
   };
-  
-  const handleSubmitPayment = (e) => {
+
+  const handleSubmitPayment = async (e) => {
+    console.log('handleSubmitPayment triggered');
     e.preventDefault();
-    setStep(3);
-    setTimeout(() => {
-      setOrderPlaced(true);
+
+    if (!user?.id) {
+      console.log('User ID not found, stopping order submission');
+      toast.error('User is not logged in. Please log in to place an order.');
+      // Optionally redirect to login page
+      // navigate('/login');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const orderData = {
+      user_id: user.id, // Use user.id now that we've checked it exists
+      ...shippingDetails,
+      // Include cart items data if you need to store product details per order
+      // items: items.map(item => ({ id: item.id, quantity: item.quantity, price: item.price })), // Example
+    };
+
+    try {
+      const response = await axios.post('http://localhost/SoniJewels/server/add_order.php', orderData);
+
+      if (response.data.success) {
+        setStep(3);
+        setOrderPlaced(true);
+        // Clear cart after successful order (optional - uncomment if you have clearCart in cartSlice)
+        // dispatch(clearCart());
+        toast.success('Order placed successfully!');
+      } else {
+        // Handle API error
+        setError(response.data.error || 'Failed to place order.');
+        toast.error(response.data.error || 'Failed to place order.');
+      }
+    } catch (err) {
+      // Handle network or other errors
+      console.error('Error placing order:', err);
+      setError('An error occurred while placing your order.');
+      // Check if it's a network error (e.g., backend is down)
+      if (axios.isAxiosError(err) && !err.response) {
+           toast.error('Network Error: Could not connect to the server.');
+      } else {
+           toast.error(error || 'An error occurred.'); // Use the state error or a generic one
+      }
+
+    } finally {
+      setLoading(false);
       window.scrollTo(0, 0);
-    }, 1500);
+    }
   };
-  
+
   if (orderPlaced) {
     return (
       <div className="min-h-screen pt-24 bg-cream-light">
@@ -57,7 +134,6 @@ const CheckoutPage = () => {
     );
   }
   
-  // If cart is empty, redirect to cart page
   if (items.length === 0) {
     return (
       <div className="min-h-screen pt-24 bg-cream-light">
@@ -77,7 +153,6 @@ const CheckoutPage = () => {
       <div className="container-custom py-8">
         <h1 className="text-3xl font-heading mb-8">Checkout</h1>
         
-        {/* Checkout Steps */}
         <div className="flex justify-between items-center mb-8 max-w-2xl">
           <div 
             className={`flex flex-col items-center ${
@@ -128,43 +203,35 @@ const CheckoutPage = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Section */}
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-md shadow-sm">
-              {/* Step 1: Shipping Information */}
               {step === 1 && (
                 <>
                   <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
                   <form onSubmit={handleSubmitShipping}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <label htmlFor="firstName" className="form-label">First Name</label>
+                        <label htmlFor="First_name" className="form-label">First Name</label>
                         <input 
                           type="text" 
-                          id="firstName" 
+                          id="First_name" 
                           className="form-input" 
+                          value={shippingDetails.First_name}
+                          onChange={handleShippingInputChange}
                           required 
                         />
                       </div>
                       <div>
-                        <label htmlFor="lastName" className="form-label">Last Name</label>
+                        <label htmlFor="Last_name" className="form-label">Last Name</label>
                         <input 
                           type="text" 
-                          id="lastName" 
+                          id="Last_name" 
                           className="form-input" 
+                          value={shippingDetails.Last_name}
+                          onChange={handleShippingInputChange}
                           required 
                         />
                       </div>
-                    </div>
-                    
-                    <div className="mb-4">
-                      <label htmlFor="email" className="form-label">Email Address</label>
-                      <input 
-                        type="email" 
-                        id="email" 
-                        className="form-input" 
-                        required 
-                      />
                     </div>
                     
                     <div className="mb-4">
@@ -173,59 +240,75 @@ const CheckoutPage = () => {
                         type="tel" 
                         id="phone" 
                         className="form-input" 
+                        value={shippingDetails.phone}
+                        onChange={handleShippingInputChange}
                         required 
                       />
                     </div>
                     
                     <div className="mb-4">
-                      <label htmlFor="address" className="form-label">Address</label>
+                      <label htmlFor="Address" className="form-label">Address</label>
                       <input 
                         type="text" 
-                        id="address" 
+                        id="Address" 
                         className="form-input" 
+                        value={shippingDetails.Address}
+                        onChange={handleShippingInputChange}
                         required 
                       />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                       <div>
-                        <label htmlFor="city" className="form-label">City</label>
+                        <label htmlFor="City" className="form-label">City</label>
                         <input 
                           type="text" 
-                          id="city" 
+                          id="City" 
                           className="form-input" 
+                          value={shippingDetails.City}
+                          onChange={handleShippingInputChange}
                           required 
                         />
                       </div>
                       <div>
-                        <label htmlFor="state" className="form-label">State</label>
+                        <label htmlFor="State" className="form-label">State</label>
                         <input 
                           type="text" 
-                          id="state" 
+                          id="State" 
                           className="form-input" 
+                          value={shippingDetails.State}
+                          onChange={handleShippingInputChange}
                           required 
                         />
                       </div>
                       <div>
-                        <label htmlFor="zip" className="form-label">ZIP Code</label>
+                        <label htmlFor="Zip_code" className="form-label">ZIP Code</label>
                         <input 
                           type="text" 
-                          id="zip" 
+                          id="Zip_code" 
                           className="form-input" 
+                          value={shippingDetails.Zip_code}
+                          onChange={handleShippingInputChange}
                           required 
                         />
                       </div>
                     </div>
                     
                     <div className="mb-6">
-                      <label htmlFor="country" className="form-label">Country</label>
-                      <select id="country" className="form-input" required>
+                      <label htmlFor="Country" className="form-label">Country</label>
+                      <select 
+                        id="Country" 
+                        className="form-input" 
+                        value={shippingDetails.Country}
+                        onChange={handleShippingInputChange}
+                        required
+                      >
                         <option value="">Select Country</option>
-                        <option value="IN">India</option>
-                        <option value="US">United States</option>
-                        <option value="GB">United Kingdom</option>
-                        <option value="CA">Canada</option>
-                        <option value="AU">Australia</option>
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
                       </select>
                     </div>
                     
@@ -236,9 +319,9 @@ const CheckoutPage = () => {
                 </>
               )}
               
-              {/* Step 2: Payment Information */}
               {step === 2 && (
                 <>
+                  {console.log('Rendering Step 2 (Payment Information)')}
                   <h2 className="text-xl font-medium mb-4">Payment Information</h2>
                   <form onSubmit={handleSubmitPayment}>
                     <div className="mb-6">
@@ -249,7 +332,8 @@ const CheckoutPage = () => {
                             id="credit-card" 
                             name="payment-method" 
                             className="h-4 w-4 text-burgundy border-gray-300 focus:ring-burgundy" 
-                            defaultChecked 
+                            defaultChecked
+                            onChange={() => setPaymentDetails({ ...paymentDetails, paymentMethod: 'credit-card' })}
                           />
                           <label htmlFor="credit-card" className="ml-2 text-sm font-medium">
                             Credit Card
@@ -258,23 +342,13 @@ const CheckoutPage = () => {
                         <div className="flex items-center">
                           <input 
                             type="radio" 
-                            id="net-banking" 
+                            id="paypal" 
                             name="payment-method" 
                             className="h-4 w-4 text-burgundy border-gray-300 focus:ring-burgundy" 
+                            onChange={() => setPaymentDetails({ ...paymentDetails, paymentMethod: 'paypal' })}
                           />
-                          <label htmlFor="net-banking" className="ml-2 text-sm font-medium">
-                            Net Banking
-                          </label>
-                        </div>
-                        <div className="flex items-center">
-                          <input 
-                            type="radio" 
-                            id="upi" 
-                            name="payment-method" 
-                            className="h-4 w-4 text-burgundy border-gray-300 focus:ring-burgundy" 
-                          />
-                          <label htmlFor="upi" className="ml-2 text-sm font-medium">
-                            UPI
+                          <label htmlFor="paypal" className="ml-2 text-sm font-medium">
+                            PayPal
                           </label>
                         </div>
                       </div>
@@ -352,31 +426,30 @@ const CheckoutPage = () => {
                       >
                         Back to Shipping
                       </button>
-                      <button type="submit" className="btn btn-primary">
-                        Place Order
-                      </button>
+                      <button
+                          type="submit"
+                          className="btn btn-primary flex items-center"
+                          disabled={loading}
+                          onClick={() => console.log('Place Order button clicked')}
+                      >
+                           {loading ? 'Processing...' : <>Place Order <ChevronRight size={16} className="ml-1" /></>}
+                        </button>
                     </div>
                   </form>
                 </>
               )}
               
-              {/* Step 3: Processing Order */}
-              {step === 3 && (
-                <div className="text-center py-16">
-                  <div className="inline-block animate-spin mb-6">
-                    <svg className="w-12 h-12 text-burgundy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </div>
-                  <h2 className="text-xl font-medium mb-2">Processing Your Order</h2>
-                  <p className="text-gray-600">Please wait while we process your payment...</p>
+              {step === 3 && !orderPlaced && (
+                <div className="text-center">
+                  <h2 className="text-xl font-medium mb-4">Confirming Order...</h2>
+                  {error && (
+                    <p className="text-red-500 mt-4">{error}</p>
+                  )}
                 </div>
               )}
             </div>
           </div>
           
-          {/* Order Summary */}
           <div>
             <div className="bg-white p-6 rounded-md shadow-sm sticky top-24">
               <h2 className="text-xl font-medium mb-4">Order Summary</h2>
@@ -413,14 +486,14 @@ const CheckoutPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span>{formatPrice(totalAmount * 0.05)}</span>
+                  <span>{formatPrice(totalAmount * 0)}</span>
                 </div>
               </div>
               
               <div className="border-t border-gray-200 pt-4 mb-6">
                 <div className="flex justify-between font-medium text-lg">
                   <span>Total</span>
-                  <span className="text-burgundy">{formatPrice(totalAmount * 1.05)}</span>
+                  <span className="text-burgundy">{formatPrice(totalAmount)}</span>
                 </div>
               </div>
               

@@ -98,7 +98,12 @@ const ProductPage = () => {
   };
   
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...product, quantity }));
+    const productForCart = {
+      ...product,
+      images: Array.isArray(product.images) ? product.images : [product.images || '/placeholder.jpg'],
+      quantity,
+    };
+    dispatch(addToCart(productForCart));
     toast.success('Added to cart');
   };
   
