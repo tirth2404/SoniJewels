@@ -301,7 +301,7 @@ const ProductPage = () => {
             <div className="flex flex-wrap gap-3">
               <div 
                 onClick={handleAddToCart}
-                className="bg-burgundy text-white px-6 py-3 rounded cursor-pointer hover:bg-burgundy-dark flex items-center"
+                className="btn btn-primary flex items-center"
               >
                 <ShoppingBag size={18} className="mr-2" />
                 Add to Cart

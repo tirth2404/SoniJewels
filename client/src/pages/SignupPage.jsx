@@ -85,7 +85,7 @@ const SignupPage = () => {
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label htmlFor="name" className="form-label">Full Name</label>
+                <label htmlFor="name" className="form-label">User name</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -95,6 +95,7 @@ const SignupPage = () => {
                     onChange={handleChange}
                     className="form-input pl-10"
                     placeholder="John Doe"
+                    title='Enter your user name'
                     required
                   />
                   <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

@@ -40,6 +40,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $products[] = $row;
         }
         
+        // Log the products array before encoding
+        error_log("Products data: " . print_r($products, true));
+
+        // --- Start: Log image paths for product ID 1 ---
+        $productIdToLog = 1;
+        $stmtSingle = $conn->prepare("SELECT images FROM products WHERE id = ?");
+        if ($stmtSingle) {
+            $stmtSingle->bind_param("i", $productIdToLog);
+            $stmtSingle->execute();
+            $resultSingle = $stmtSingle->get_result();
+            if ($rowSingle = $resultSingle->fetch_assoc()) {
+                $imagesJson = $rowSingle['images'];
+                $imagesArray = json_decode($imagesJson, true) ?? [];
+                error_log("Images for product ID " . $productIdToLog . ": " . print_r($imagesArray, true));
+            } else {
+                error_log("Product with ID " . $productIdToLog . " not found.");
+            }
+            $stmtSingle->close();
+        }
+        // --- End: Log image paths for product ID 1 ---
+
         // Send success response
         echo json_encode([
             'status' => 'success',

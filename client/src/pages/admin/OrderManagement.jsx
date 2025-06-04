@@ -1,20 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Package, Truck, CheckCircle, XCircle } from 'lucide-react';
+import axios from 'axios';
 
 const OrderManagement = () => {
-  const orders = [
-    {
-      id: 'ORD001',
-      customer: 'John Doe',
-      date: '2024-02-20',
-      total: 29999,
-      status: 'pending',
-      items: [
-        { name: 'Diamond Ring', quantity: 1, price: 29999 }
-      ]
-    },
-    // Add more sample orders as needed
-  ];
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get('http://localhost/SoniJewels/server/orders/get_orders.php');
+        if (response.data.status === 'success') {
+          setOrders(response.data.data);
+        } else {
+          setError(response.data.message);
+        }
+      } catch (err) {
+        setError('Failed to fetch orders');
+        console.error('Error fetching orders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -101,25 +112,22 @@ const OrderManagement = () => {
                       {order.id}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {order.customer}
+                      {`${order.First_name} ${order.Last_name}`}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {new Date(order.date).toLocaleDateString()}
+                      {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      ₹{order.total}
+                      N/A
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor('unknown')}`}>
+                        Unknown
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
                       <select className="form-input py-1 px-2 text-sm">
-                        <option value="pending">Pending</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="delivered">Delivered</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="unknown">Unknown</option>
                       </select>
                     </td>
                   </tr>
