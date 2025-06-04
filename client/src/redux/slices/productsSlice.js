@@ -47,14 +47,6 @@ const productsSlice = createSlice({
           return false;
         }
         
-        // Filter by price range
-        if (
-          product.price < state.filters.priceRange[0] ||
-          product.price > state.filters.priceRange[1]
-        ) {
-          return false;
-        }
-        
         // Filter by materials
         if (
           state.filters.materials.length > 0 &&

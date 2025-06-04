@@ -24,6 +24,7 @@ const ShopPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const { filteredProducts: reduxFilteredProducts } = useSelector((state) => state.products);
 
   // Fetch products
   const fetchProducts = async () => {
@@ -47,6 +48,28 @@ const ShopPage = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Update filtered products when Redux state changes
+  useEffect(() => {
+    if (reduxFilteredProducts.length > 0) {
+      setFilteredProducts(reduxFilteredProducts);
+    }
+  }, [reduxFilteredProducts]);
+
+  // Handle search
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredProducts(reduxFilteredProducts);
+    } else {
+      const searchResults = reduxFilteredProducts.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.material.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProducts(searchResults);
+    }
+  }, [searchQuery, reduxFilteredProducts]);
 
   // Handle add to cart
   const handleAddToCart = (product) => {

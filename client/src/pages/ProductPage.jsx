@@ -98,11 +98,16 @@ const ProductPage = () => {
   };
   
   const handleAddToCart = () => {
+    if (!product) return;
+    
     const productForCart = {
-      ...product,
-      images: Array.isArray(product.images) ? product.images : [product.images || '/placeholder.jpg'],
-      quantity,
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images?.[0] ? `http://localhost${product.images[0]}` : '/placeholder.jpg',
+      quantity: 1
     };
+    
     dispatch(addToCart(productForCart));
     toast.success('Added to cart');
   };
@@ -294,14 +299,13 @@ const ProductPage = () => {
             
             {/* Actions */}
             <div className="flex flex-wrap gap-3">
-              <button
+              <div 
                 onClick={handleAddToCart}
-                className="btn btn-primary flex items-center"
-                disabled={!product?.inStock}
+                className="bg-burgundy text-white px-6 py-3 rounded cursor-pointer hover:bg-burgundy-dark flex items-center"
               >
                 <ShoppingBag size={18} className="mr-2" />
                 Add to Cart
-              </button>
+              </div>
               <button 
                 onClick={handleWishlistToggle}
                 className={`btn btn-outline flex items-center ${isInWishlist ? 'text-red-500 border-red-500 hover:bg-red-50' : ''}`}
