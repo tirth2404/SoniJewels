@@ -80,7 +80,10 @@ const CartPage = () => {
                             </button>
                             <span className="mx-3 w-8 text-center">{item.quantity}</span>
                             <button
-                              onClick={() => handleAddItem(item)}
+                              onClick={() => dispatch(addToCart({
+                                ...item,
+                                quantity: 1
+                              }))}
                               className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-sm"
                               aria-label="Increase quantity"
                             >

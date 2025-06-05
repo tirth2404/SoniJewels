@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { X, ShoppingBag, Trash2 } from 'lucide-react';
 import { closeCart, toggleCart } from '../../redux/slices/uiSlice.js';
-import { removeFromCart, deleteFromCart } from '../../redux/slices/cartSlice.js';
+import { removeFromCart, deleteFromCart, addToCart } from '../../redux/slices/cartSlice.js';
 import { formatPrice } from '../../utils/formatters.js';
 
 const MiniCart = () => {
@@ -87,7 +87,10 @@ const MiniCart = () => {
                       </button>
                       <span className="mx-2 w-8 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => dispatch(addToCart(item))}
+                        onClick={() => dispatch(addToCart({
+                          ...item,
+                          quantity: 1
+                        }))}
                         className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded-sm"
                         aria-label="Increase quantity"
                       >

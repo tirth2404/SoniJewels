@@ -27,7 +27,7 @@ const cartSlice = createSlice({
           id: newItem.id,
           name: newItem.name,
           price: newItem.price,
-          image: getImageUrl(newItem.images?.[0]),
+          image: newItem.image || (newItem.images?.[0] ? `http://localhost${newItem.images[0]}` : '/placeholder.jpg'),
           quantity: addQuantity,
           totalPrice: newItem.price * addQuantity,
         });
