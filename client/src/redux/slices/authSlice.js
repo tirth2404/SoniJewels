@@ -1,4 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 // Get initial state from localStorage if available
 const getInitialState = () => {
@@ -20,6 +21,22 @@ const getInitialState = () => {
   };
 };
 
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('http://localhost/SoniJewels/server/profile/update_profile.php', profileData);
+      if (response.data.status === 'success') {
+        return response.data;
+      } else {
+        return rejectWithValue(response.data.message);
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: getInitialState(),
@@ -30,7 +47,7 @@ const authSlice = createSlice({
       // Save to localStorage
       localStorage.setItem('authState', JSON.stringify(state));
     },
-    updateProfile(state, action) {
+    updateProfileData(state, action) {
       state.profile = { ...state.profile, ...action.payload };
       // Save to localStorage
       localStorage.setItem('authState', JSON.stringify(state));
@@ -42,7 +59,22 @@ const authSlice = createSlice({
       localStorage.removeItem('authState');
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = { ...state.profile, ...action.payload.data };
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-export const { setUser, updateProfile, logout } = authSlice.actions;
+export const { setUser, updateProfileData, logout } = authSlice.actions;
 export default authSlice.reducer;
