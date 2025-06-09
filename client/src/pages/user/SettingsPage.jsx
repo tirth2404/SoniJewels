@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Check } from 'lucide-react';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const SettingsPage = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [notification, setNotification] = useState(null);
   const [formData, setFormData] = useState({
     oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
+
+  const { user } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,36 +50,47 @@ const SettingsPage = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.newPassword !== formData.confirmPassword) {
-      setNotification('Passwords do not match');
+      toast.error('New password and confirm password do not match');
       return;
     }
 
-    // Simulate password update
-    setNotification('Password updated successfully');
-    setFormData({
-      oldPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    
-    setTimeout(() => setNotification(null), 3000);
+    if (!user || !user.id) {
+      toast.error('User not logged in or user ID not found.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost/SoniJewels/server/profile/change_password.php', {
+        userId: user.id,
+        oldPassword: formData.oldPassword,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword,
+      });
+
+      if (response.data.status === 'success') {
+        toast.success(response.data.message);
+        setFormData({
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast.error(error.response?.data?.message || 'Failed to change password. Please try again.');
+    }
   };
 
   const passwordStrength = calculatePasswordStrength(formData.newPassword);
 
   return (
     <div className="min-h-screen pt-24 bg-cream-light">
-      {notification && (
-        <div className={`fixed top-20 right-4 ${notification.includes('successfully') ? 'bg-green-500' : 'bg-red-500'} text-white px-4 py-2 rounded-md shadow-md z-50 flex items-center animate-fade-in`}>
-          {notification.includes('successfully') ? <Check size={18} className="mr-2" /> : null}
-          {notification}
-        </div>
-      )}
-
       <div className="container-custom py-8">
         <h1 className="text-3xl font-heading mb-8">Security Settings</h1>
 

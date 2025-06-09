@@ -30,6 +30,8 @@ import AboutPage from './pages/AboutPage';
 import { Toaster } from 'react-hot-toast';
 import AdminFeedbackPage from './pages/admin/AdminFeedbackPage.jsx';
 import AdminCustomerQueriesPage from './pages/admin/CustomerQueriesPage.jsx';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProtectedRoute = ({ children, requiresAuth, requiresAdmin }) => {
   const { user, isAdmin } = useSelector((state) => state.auth);
@@ -57,7 +59,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-cream-light text-charcoal">
-      <Toaster position="top-right" />
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="light" />
       <Navbar />
       <main className="flex-grow">
         <Routes>

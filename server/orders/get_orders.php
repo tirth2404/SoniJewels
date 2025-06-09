@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             throw new Exception("Failed to prepare query: " . $conn->error);
         }
 
-        if (!$stmt->execute()) {
+        if (!$stmt->execute()) {    
             throw new Exception("Failed to execute query: " . $stmt->error);
         }
 
