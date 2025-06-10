@@ -12,6 +12,8 @@ import CheckoutPage from './pages/CheckoutPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import SignupPage from './pages/SignupPage.jsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import AdminPage from './pages/admin/AdminPage.jsx';
 import ProductManagement from './pages/admin/ProductManagement.jsx';
@@ -80,6 +82,8 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           
           
           {/* User Routes */}

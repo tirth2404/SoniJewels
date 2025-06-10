@@ -1,39 +1,25 @@
 <?php
-// Start output buffering
-ob_start();
 
-// Error handling setup
-ini_set('display_errors', 0);
-error_reporting(E_ALL);
+class Database {
+    private $host = 'localhost';
+    private $db_name = 'sonijewels';
+    private $username = 'root';
+    private $password = '';
+    public $conn;
 
-// Database configuration
-$host = 'localhost';
-$dbname = 'sonijewels';
-$username = 'root';
-$password = '';
+    public function getConnection(){
+        $this->conn = null;
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $dbname);
+        try{
+            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn->exec("set names utf8mb4");
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        }catch(PDOException $exception){
+            error_log("Database connection error: " . $exception->getMessage(), 0);
+            return null; // Return null on connection failure
+        }
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Set charset to utf8mb4
-$conn->set_charset("utf8mb4");
-
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Test database connection
-try {
-    $test = $conn->query("SELECT 1");
-    if (!$test) {
-        throw new Exception("Database connection test failed");
+        return $this->conn;
     }
-} catch (Exception $e) {
-    die("Database connection error: " . $e->getMessage());
 }
-?> 
+?>
