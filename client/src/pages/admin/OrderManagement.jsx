@@ -6,13 +6,43 @@ const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  const [shippedOrdersCount, setShippedOrdersCount] = useState(0);
+  const [deliveredOrdersCount, setDeliveredOrdersCount] = useState(0);
+  const [cancelledOrdersCount, setCancelledOrdersCount] = useState(0);
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      const response = await axios.post('http://localhost/SoniJewels/server/orders/update_order_status.php', {
+        orderId: orderId,
+        newStatus: newStatus
+      });
+
+      if (response.data.status === 'success') {
+        // Update the status in the local state
+        setOrders(prevOrders =>
+          prevOrders.map(order =>
+            order.id === orderId ? { ...order, status: newStatus } : order
+          )
+        );
+      } else {
+        console.error('Failed to update order status:', response.data.message);
+        setError('Failed to update order status: ' + response.data.message);
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      setError('Error updating order status.');
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get('http://localhost/SoniJewels/server/orders/get_orders.php');
+        console.log("API Response:", response.data);
         if (response.data.status === 'success') {
           setOrders(response.data.data);
+          console.log("Orders data:", response.data.data);
         } else {
           setError(response.data.message);
         }
@@ -26,6 +56,37 @@ const OrderManagement = () => {
 
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    let pending = 0;
+    let shipped = 0;
+    let delivered = 0;
+    let cancelled = 0;
+
+    orders.forEach(order => {
+      switch (order.status ? order.status.toLowerCase() : 'unknown') {
+        case 'pending':
+          pending++;
+          break;
+        case 'shipped':
+          shipped++;
+          break;
+        case 'delivered':
+          delivered++;
+          break;
+        case 'cancelled':
+          cancelled++;
+          break;
+        default:
+          break;
+      }
+    });
+
+    setPendingOrdersCount(pending);
+    setShippedOrdersCount(shipped);
+    setDeliveredOrdersCount(delivered);
+    setCancelledOrdersCount(cancelled);
+  }, [orders]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -56,7 +117,7 @@ const OrderManagement = () => {
               <Package className="text-burgundy" size={24} />
               <div className="ml-3">
                 <p className="text-sm text-gray-500">Pending Orders</p>
-                <p className="text-xl font-medium">12</p>
+                <p className="text-xl font-medium">{pendingOrdersCount}</p>
               </div>
             </div>
           </div>
@@ -66,7 +127,7 @@ const OrderManagement = () => {
               <Truck className="text-burgundy" size={24} />
               <div className="ml-3">
                 <p className="text-sm text-gray-500">Shipped</p>
-                <p className="text-xl font-medium">5</p>
+                <p className="text-xl font-medium">{shippedOrdersCount}</p>
               </div>
             </div>
           </div>
@@ -76,7 +137,7 @@ const OrderManagement = () => {
               <CheckCircle className="text-burgundy" size={24} />
               <div className="ml-3">
                 <p className="text-sm text-gray-500">Delivered</p>
-                <p className="text-xl font-medium">28</p>
+                <p className="text-xl font-medium">{deliveredOrdersCount}</p>
               </div>
             </div>
           </div>
@@ -86,7 +147,7 @@ const OrderManagement = () => {
               <XCircle className="text-burgundy" size={24} />
               <div className="ml-3">
                 <p className="text-sm text-gray-500">Cancelled</p>
-                <p className="text-xl font-medium">3</p>
+                <p className="text-xl font-medium">{cancelledOrdersCount}</p>
               </div>
             </div>
           </div>
@@ -102,6 +163,10 @@ const OrderManagement = () => {
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Date</th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Total</th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Username</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Phone</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Address</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Products</th>
                   <th className="px-6 py-3 text-right text-sm font-medium text-gray-500">Actions</th>
                 </tr>
               </thead>
@@ -115,18 +180,46 @@ const OrderManagement = () => {
                       {`${order.First_name} ${order.Last_name}`}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'N/A'}
+                      {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      N/A
+                      {order.total ? `$${parseFloat(order.total).toFixed(2)}` : 'N/A'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor('unknown')}`}>
-                        Unknown
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status ? order.status.toLowerCase() : 'unknown')}`}>
+                        {order.status || 'Unknown'}
                       </span>
                     </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {order.Username || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {order.phone || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {`${order.Address || ''}, ${order.City || ''}, ${order.State || ''}, ${order.Zip_code || ''}, ${order.Country || ''}`.replace(/, \s*,/g, ',').replace(/^,\s*|,\s*$/g, '') || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {order.items && order.items.length > 0 ? (
+                        <ul>
+                          {order.items.map((item, index) => (
+                            <li key={index}>{item.product_name} (x{item.quantity})</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        'N/A'
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
-                      <select className="form-input py-1 px-2 text-sm">
+                      <select
+                        className="form-input py-1 px-2 text-sm"
+                        value={order.status ? order.status.toLowerCase() : 'unknown'}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
                         <option value="unknown">Unknown</option>
                       </select>
                     </td>

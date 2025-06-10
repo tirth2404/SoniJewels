@@ -26,8 +26,14 @@ if ($conn->connect_error) {
 // Get POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
+// Get total, user_id, and items from posted data
+$total = $data['total'] ?? 0.00;
+$userId = $data['user_id'] ?? null; // Get user_id
+$items = $data['items'] ?? []; // Get items array
+
 // You can use either user_id or username to fetch the email
-$user_identifier = isset($data['user_id']) ? $data['user_id'] : (isset($data['username']) ? $data['username'] : null);
+// Note: user_identifier is no longer strictly needed if user_id is directly available
+$user_identifier = $userId; // Use userId directly
 
 if (!$user_identifier) {
     http_response_code(400);
@@ -54,10 +60,10 @@ if (!$email) {
     exit();
 }
 
-// Prepare order insert
-$stmt = $conn->prepare("INSERT INTO orders (First_name, Last_name, Email, Address, City, State, Zip_code, Country) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+// Prepare order insert to include total and user_id
+$stmt = $conn->prepare("INSERT INTO orders (First_name, Last_name, Email, Address, City, State, Zip_code, Country, total, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param(
-    "ssssssis",
+    "ssssssisdi", // 'd' for double (total is a decimal/float), 'i' for integer (user_id)
     $data['First_name'],
     $data['Last_name'],
     $email,
@@ -65,11 +71,34 @@ $stmt->bind_param(
     $data['City'],
     $data['State'],
     $data['Zip_code'],
-    $data['Country']
+    $data['Country'],
+    $total,
+    $userId
 );
 
 if ($stmt->execute()) {
-    echo json_encode(["success" => true, "order_id" => $stmt->insert_id]);
+    $order_id = $stmt->insert_id;
+
+    // Insert order items
+    if (!empty($items)) {
+        $stmt_items = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES (?, ?, ?, ?)");
+        foreach ($items as $item) {
+            $product_id = $item['id'] ?? null;
+            $quantity = $item['quantity'] ?? null;
+            $price_at_purchase = $item['price'] ?? null;
+
+            if ($product_id && $quantity && $price_at_purchase !== null) {
+                $stmt_items->bind_param("iiid", $order_id, $product_id, $quantity, $price_at_purchase);
+                $stmt_items->execute();
+            } else {
+                // Log or handle error if item data is incomplete
+                error_log("Incomplete item data for order_id: " . $order_id . " - " . json_encode($item));
+            }
+        }
+        $stmt_items->close();
+    }
+
+    echo json_encode(["success" => true, "order_id" => $order_id]);
 } else {
     http_response_code(500);
     echo json_encode(["error" => "Failed to place order"]);

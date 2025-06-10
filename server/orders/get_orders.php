@@ -20,10 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             throw new Exception("Database connection failed");
         }
 
-        // Prepare and execute query to fetch all orders
-        // Note: The 'orders' table structure provided does not include 'total' or 'status'.
-        // We will fetch the available columns for now.
-        $stmt = $conn->prepare("SELECT id, First_name, Last_name, Email, Address, City, State, Zip_code, Country FROM orders ORDER BY id DESC");
+        // Prepare and execute query to fetch all orders with user details
+        $stmt = $conn->prepare("
+            SELECT 
+                o.id, o.First_name, o.Last_name, o.Email, o.Address, o.City, o.State, o.Zip_code, o.Country, 
+                o.order_date, o.total, o.status, 
+                u.Username, u.phone 
+            FROM 
+                orders o
+            LEFT JOIN 
+                users u ON o.user_id = u.id
+            ORDER BY 
+                o.id DESC
+        ");
         if (!$stmt) {
             throw new Exception("Failed to prepare query: " . $conn->error);
         }
@@ -36,7 +45,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $orders = [];
 
         while ($row = $result->fetch_assoc()) {
-            $orders[] = $row;
+            $order = $row;
+            $order_id = $order['id'];
+
+            // Fetch order items for each order
+            $stmt_items = $conn->prepare("
+                SELECT 
+                    oi.quantity, oi.price_at_purchase, 
+                    p.name AS product_name, p.images AS product_image_url 
+                FROM 
+                    order_items oi
+                JOIN 
+                    products p ON oi.product_id = p.id
+                WHERE 
+                    oi.order_id = ?
+            ");
+            $stmt_items->bind_param("i", $order_id);
+            $stmt_items->execute();
+            $items_result = $stmt_items->get_result();
+            $order_items = [];
+            while ($item_row = $items_result->fetch_assoc()) {
+                $order_items[] = $item_row;
+            }
+            $stmt_items->close();
+            
+            $order['items'] = $order_items;
+            $orders[] = $order;
         }
 
         // Send success response

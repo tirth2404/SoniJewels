@@ -67,8 +67,8 @@ const CheckoutPage = () => {
     const orderData = {
       user_id: user.id, // Use user.id now that we've checked it exists
       ...shippingDetails,
-      // Include cart items data if you need to store product details per order
-      // items: items.map(item => ({ id: item.id, quantity: item.quantity, price: item.price })), // Example
+      total: totalAmount,
+      items: items.map(item => ({ id: item.id, quantity: item.quantity, price: item.price })), // Include cart items data
     };
 
     try {
