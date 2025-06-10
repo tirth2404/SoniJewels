@@ -148,7 +148,7 @@ const CartPage = () => {
                 <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between font-medium text-lg">
                     <span>Total</span>
-                    <span className="text-burgundy">{formatPrice(totalAmount * 1.05)}</span>
+                    <span className="text-burgundy">₹{formatPrice(totalAmount * 1.05)}</span>
                   </div>
                 </div>
                 

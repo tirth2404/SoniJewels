@@ -183,7 +183,7 @@ const OrderManagement = () => {
                       {order.order_date ? new Date(order.order_date).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      {order.total ? `$${parseFloat(order.total).toFixed(2)}` : 'N/A'}
+                      {order.total ? `₹${parseFloat(order.total).toFixed(2)}` : 'N/A'}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status ? order.status.toLowerCase() : 'unknown')}`}>
