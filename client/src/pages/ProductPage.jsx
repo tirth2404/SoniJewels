@@ -264,24 +264,8 @@ const ProductPage = () => {
           
           {/* Product details */}
           <div>
-            <h1 className="text-3xl font-heading font-semibold mb-2">{product?.name}</h1>
-            <div className="flex items-center mb-4">
-              <div className="flex text-gold">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={20}
-                    className={i < Math.floor(product?.rating || 0) ? 'fill-current' : ''}
-                  />
-                ))}
-              </div>
-              <span className="text-sm text-gray-500 ml-2">
-                ({product?.reviews?.length || 0} reviews)
-              </span>
-            </div>
-            
+            <h1 className="text-3xl font-heading font-semibold mb-2">{product?.name}</h1>            
             <p className="text-2xl font-semibold text-gold mb-6">₹{product?.price}</p>
-            
             <div className="prose prose-sm text-gray-600 mb-8">
               <p>{product?.description}</p>
             </div>
