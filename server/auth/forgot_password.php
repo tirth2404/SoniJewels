@@ -76,13 +76,13 @@
                     $mail->isSMTP();
                     $mail->Host       = 'smtp.gmail.com'; // Your SMTP server
                     $mail->SMTPAuth   = true;
-                    $mail->Username   = 'yasar.pathan005@gmail.com'; // Your sending email address
-                    $mail->Password   = 'areg hpkq teee kkjz'; // Your App Password (for Gmail) or email password
+                    $mail->Username   = ''; // Your sending email address
+                    $mail->Password   = ''; // Your App Password (for Gmail) or email password
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Use ENCRYPTION_SMTPS for port 465, ENCRYPTION_STARTTLS for port 587
                     $mail->Port       = 587; // Usually 587 for STARTTLS, 465 for SMTPS
 
                     //Recipients
-                    $mail->setFrom('yasar.pathan005@gmail.com', 'SoniJewels'); // Your sender email and name
+                    $mail->setFrom('', 'SoniJewels'); // Your sender email and name
                     $mail->addAddress($email);
 
                     // Content
