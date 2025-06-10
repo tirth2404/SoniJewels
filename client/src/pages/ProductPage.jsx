@@ -17,6 +17,7 @@ import ProductCard from '../components/shop/ProductCard.jsx';
 import { addToWishlist, removeFromWishlist } from '../redux/slices/wishlistSlice';
 import QuickViewModal from '../components/shop/QuickViewModal';
 import { toast } from 'react-hot-toast';
+import ReviewSection from '../components/shop/ReviewSection';
 
 const API_URL = 'http://localhost/SoniJewels/server/products';
 
@@ -344,6 +345,9 @@ const ProductPage = () => {
             </div>
           </div>
         )}
+
+        {/* Reviews Section */}
+        <ReviewSection productId={product.id} />
       </div>
 
       {/* Quick View Modal */}
