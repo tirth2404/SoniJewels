@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate required fields
-        $requiredFields = ['name', 'email', 'message'];
+        $requiredFields = ['name', 'email', 'phone', 'subject', 'message'];
         foreach ($requiredFields as $field) {
-            if (!isset($data[$field]) || empty($data[$field])) {
+            if (!isset($data[$field])) {
                 throw new Exception("Missing required field: $field");
             }
         }
@@ -37,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Prepare SQL statement
         $stmt = $conn->prepare("
-            INSERT INTO contact_messages (name, email, message)
-            VALUES (?, ?, ?)
+            INSERT INTO contact (name, email, phone, subject, message)
+            VALUES (?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -47,9 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Bind parameters
         $stmt->bind_param(
-            "sss",
+            "sssss",
             $data['name'],
             $data['email'],
+            $data['phone'],
+            $data['subject'],
             $data['message']
         );
 

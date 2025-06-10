@@ -68,7 +68,10 @@ const CheckoutPage = () => {
       user_id: user.id, // Use user.id now that we've checked it exists
       ...shippingDetails,
       total: totalAmount,
-      items: items.map(item => ({ id: item.id, quantity: item.quantity, price: item.price })), // Include cart items data
+      items: items.map(item => ({ id: item.id, quantity: item.quantity, price: item.price })),
+      shipping_method: 'Standard Delivery', // Placeholder for now, you can make this dynamic if you have options
+      payment_method: paymentDetails.paymentMethod,
+      payment_last4: paymentDetails.last4, // Assuming paymentDetails.last4 is available or will be captured
     };
 
     try {

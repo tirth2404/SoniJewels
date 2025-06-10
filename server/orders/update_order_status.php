@@ -44,6 +44,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($stmt->affected_rows > 0) {
+            // Insert into order_timeline table
+            $stmt_timeline = $conn->prepare("INSERT INTO order_timeline (order_id, status_changed_to) VALUES (?, ?)");
+            if ($stmt_timeline) {
+                $stmt_timeline->bind_param("is", $orderId, $newStatus);
+                $stmt_timeline->execute();
+                $stmt_timeline->close();
+            } else {
+                error_log("Failed to prepare timeline insert statement: " . $conn->error);
+            }
             echo json_encode(['status' => 'success', 'message' => 'Order status updated successfully.']);
         } else {
             http_response_code(404);

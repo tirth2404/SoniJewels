@@ -25,11 +25,17 @@ if ($conn->connect_error) {
 
 // Get POST data
 $data = json_decode(file_get_contents("php://input"), true);
+error_log("add_order.php received data: " . print_r($data, true)); // Log incoming data
 
 // Get total, user_id, and items from posted data
 $total = $data['total'] ?? 0.00;
 $userId = $data['user_id'] ?? null; // Get user_id
 $items = $data['items'] ?? []; // Get items array
+
+// Get shipping and payment details
+$shippingMethod = $data['shipping_method'] ?? null;
+$paymentMethod = $data['payment_method'] ?? null;
+$paymentLast4 = $data['payment_last4'] ?? null;
 
 // You can use either user_id or username to fetch the email
 // Note: user_identifier is no longer strictly needed if user_id is directly available
@@ -60,10 +66,14 @@ if (!$email) {
     exit();
 }
 
-// Prepare order insert to include total and user_id
-$stmt = $conn->prepare("INSERT INTO orders (First_name, Last_name, Email, Address, City, State, Zip_code, Country, total, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+// Prepare order insert to include total, user_id, shipping and payment details
+$stmt = $conn->prepare("INSERT INTO orders (First_name, Last_name, Email, Address, City, State, Zip_code, Country, total, user_id, shipping_method, payment_method, payment_last4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+if (!$stmt) {
+    error_log("add_order.php prepare error: " . $conn->error); // Log prepare error
+    throw new Exception("Failed to prepare statement: " . $conn->error);
+}
 $stmt->bind_param(
-    "ssssssisdi", // 'd' for double (total is a decimal/float), 'i' for integer (user_id)
+    "ssssssisdisss", // Corrected: 's' for string (payment_last4)
     $data['First_name'],
     $data['Last_name'],
     $email,
@@ -73,15 +83,23 @@ $stmt->bind_param(
     $data['Zip_code'],
     $data['Country'],
     $total,
-    $userId
+    $userId,
+    $shippingMethod,
+    $paymentMethod,
+    $paymentLast4
 );
 
 if ($stmt->execute()) {
+    error_log("Order inserted successfully. Order ID: " . $stmt->insert_id); // Log successful insert
     $order_id = $stmt->insert_id;
 
     // Insert order items
     if (!empty($items)) {
         $stmt_items = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase) VALUES (?, ?, ?, ?)");
+        if (!$stmt_items) {
+            error_log("add_order.php order_items prepare error: " . $conn->error); // Log order items prepare error
+            throw new Exception("Failed to prepare order_items statement: " . $conn->error);
+        }
         foreach ($items as $item) {
             $product_id = $item['id'] ?? null;
             $quantity = $item['quantity'] ?? null;
@@ -100,6 +118,7 @@ if ($stmt->execute()) {
 
     echo json_encode(["success" => true, "order_id" => $order_id]);
 } else {
+    error_log("add_order.php execute error: " . $stmt->error); // Log execute error
     http_response_code(500);
     echo json_encode(["error" => "Failed to place order"]);
 }

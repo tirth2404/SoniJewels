@@ -55,6 +55,7 @@ const CustomerQueriesPage = () => {
                   <div>
                     <h3 className="font-medium text-lg">{query.subject}</h3>
                     <p className="text-sm text-gray-600">From: {query.name} ({query.email})</p>
+                    <p className="text-sm text-gray-600">Phone: {query.phone}</p>
                     <p className="text-sm text-gray-500">Date: {query.submitted_at ? query.submitted_at.substring(0, 10) : ''}</p>
                   </div>
                 </div>

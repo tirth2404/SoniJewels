@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toggleNav, closeNav, toggleCart } from '../../redux/slices/uiSlice.js';
 import { logout } from '../../redux/slices/authSlice.js';
+import { clearCart } from '../../redux/slices/cartSlice.js';
 import MiniCart from '../cart/MiniCart.jsx';
 
 const Navbar = () => {
@@ -44,6 +45,7 @@ const Navbar = () => {
   
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(clearCart());
     navigate('/');
   };
   
