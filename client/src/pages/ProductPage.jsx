@@ -23,6 +23,7 @@ const API_URL = 'http://localhost/SoniJewels/server/products';
 
 const ProductPage = () => {
   const { id } = useParams();
+  console.log('Product ID from URL:', id);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   

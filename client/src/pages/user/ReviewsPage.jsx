@@ -221,8 +221,8 @@ const ReviewsPage = () => {
                     {console.log("Review data:", review)}
                     {console.log("Product image:", review.product_image)}
                     <img
-                      src={review.product_image ? `http://localhost${review.product_image.replace(/\\/g, '/')}` : 'https://via.placeholder.com/80'}
-                      alt={review.product_name}
+                      src={review.profilePicture ? `http://localhost${review.profilePicture.replace(/\\/g, '/')}` : 'https://via.placeholder.com/80'}
+                      alt={review.Username || 'User'}
                       className="w-20 h-20 object-cover rounded-md"
                       onError={(e) => {
                         console.error("Image failed to load:", e);
@@ -232,7 +232,7 @@ const ReviewsPage = () => {
                     <div className="ml-4 flex-grow">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium mb-1">{review.product_name}</h3>
+                          <h3 className="font-medium mb-1">{review.Username}</h3>
                           <div className="flex mb-2">
                             {renderStars(review.rating)}
                             <span className="text-sm text-gray-500 ml-2">

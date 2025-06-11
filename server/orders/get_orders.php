@@ -15,6 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
+        $database = new Database();
+        $conn = $database->getConnection();
         // Check database connection
         if (!$conn) {
             throw new Exception("Database connection failed");
@@ -46,17 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         if ($userId) {
-            $stmt->bind_param("i", $userId);
+            $stmt->bindParam(1, $userId, PDO::PARAM_INT);
         }
 
         if (!$stmt->execute()) {    
-            throw new Exception("Failed to execute query: " . $stmt->error);
+            throw new Exception("Failed to execute query: " . $stmt->errorInfo()[2]);
         }
 
-        $result = $stmt->get_result();
         $orders = [];
 
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $order = $row;
             $order_id = $order['id'];
 
@@ -72,11 +73,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 WHERE 
                     oi.order_id = ?
             ");
-            $stmt_items->bind_param("i", $order_id);
+            $stmt_items->bindParam(1, $order_id, PDO::PARAM_INT);
             $stmt_items->execute();
-            $items_result = $stmt_items->get_result();
             $order_items = [];
-            while ($item_row = $items_result->fetch_assoc()) {
+            while ($item_row = $stmt_items->fetch(PDO::FETCH_ASSOC)) {
                 error_log("Original product_images_json: " . $item_row['product_images_json']);
                 // Decode the JSON string for images and take the first one
                 $images_array = json_decode($item_row['product_images_json'], true);
@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 unset($item_row['product_images_json']); // Remove the raw JSON key
                 $order_items[] = $item_row;
             }
-            $stmt_items->close();
             
             $order['items'] = $order_items;
 
@@ -104,14 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     timestamp ASC
             ");
             if ($stmt_timeline) {
-                $stmt_timeline->bind_param("i", $order_id);
+                $stmt_timeline->bindParam(1, $order_id, PDO::PARAM_INT);
                 $stmt_timeline->execute();
-                $timeline_result = $stmt_timeline->get_result();
                 $order_timeline = [];
-                while ($timeline_row = $timeline_result->fetch_assoc()) {
+                while ($timeline_row = $stmt_timeline->fetch(PDO::FETCH_ASSOC)) {
                     $order_timeline[] = $timeline_row;
                 }
-                $stmt_timeline->close();
+                
             } else {
                 error_log("Failed to prepare timeline query: " . $conn->error);
                 $order_timeline = []; // Ensure it's an empty array on error
@@ -143,6 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

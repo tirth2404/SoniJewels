@@ -4,13 +4,16 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 
+require_once __DIR__ . '/../config/database.php';
+
 // Database connection
 try {
-    $conn = new mysqli("localhost", "root", "", "Sonijewels");
+    $database = new Database();
+    $conn = $database->getConnection();
     
     // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
+    if (!$conn) {
+        throw new Exception("Database connection failed.");
     }
 } catch (Exception $e) {
     error_log("Database connection error: " . $e->getMessage());
@@ -30,29 +33,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
         // Get reviews with product information
         $query = "
-            SELECT r.*, p.name as product_name, p.images as product_images 
+            SELECT r.*, p.name as product_name, p.images as product_images, u.Username, u.profilePicture 
             FROM reviews r 
             LEFT JOIN products p ON r.product_id = p.id 
+            LEFT JOIN users u ON r.user_id = u.id 
             WHERE r.user_id = ? 
             ORDER BY r.created_at DESC
         ";
         
         $stmt = $conn->prepare($query);
         if (!$stmt) {
-            throw new Exception("Prepare failed: " . $conn->error);
+            throw new Exception("Prepare failed: " . $conn->errorInfo()[2]);
         }
         
-        $stmt->bind_param("i", $user_id);
+        $stmt->bindParam(1, $user_id, PDO::PARAM_INT);
         
         if (!$stmt->execute()) {
-            throw new Exception("Execute failed: " . $stmt->error);
+            throw new Exception("Execute failed: " . $stmt->errorInfo()[2]);
         }
         
-        $result = $stmt->get_result();
-        $reviews = [];
+        $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        while ($row = $result->fetch_assoc()) {
-            // Format the product image URL if it exists
+        // Format the product image URL and profile picture URL if they exist
+        foreach ($reviews as &$row) {
             if ($row['product_images']) {
                 // Since images are stored as JSON array, get the first image
                 $images = json_decode($row['product_images'], true);
@@ -69,7 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     $row['product_image'] = null;
                 }
             }
-            $reviews[] = $row;
+
+            // Format the profile picture URL
+            if ($row['profilePicture']) {
+                $profilePath = ltrim($row['profilePicture'], '/\\');
+                $profilePath = str_replace('SoniJewels/server/uploads/profile/', '', $profilePath);
+                $row['profilePicture'] = '/SoniJewels/server/uploads/profile/' . $profilePath;
+            }
         }
         
         echo json_encode([
@@ -92,6 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

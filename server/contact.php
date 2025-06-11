@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        $database = new Database();
+        $conn = $database->getConnection();
+
+        if (!$conn) {
+            throw new Exception("Database connection failed.");
+        }
+
         // Get POST data
         $data = json_decode(file_get_contents('php://input'), true);
         
@@ -42,22 +49,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare statement: " . $conn->error);
+            throw new Exception("Failed to prepare statement: " . $conn->errorInfo()[2]);
         }
 
         // Bind parameters
-        $stmt->bind_param(
-            "sssss",
-            $data['name'],
-            $data['email'],
-            $data['phone'],
-            $data['subject'],
-            $data['message']
-        );
+        $stmt->bindParam(1, $data['name'], PDO::PARAM_STR);
+        $stmt->bindParam(2, $data['email'], PDO::PARAM_STR);
+        $stmt->bindParam(3, $data['phone'], PDO::PARAM_STR);
+        $stmt->bindParam(4, $data['subject'], PDO::PARAM_STR);
+        $stmt->bindParam(5, $data['message'], PDO::PARAM_STR);
 
         // Execute statement
         if (!$stmt->execute()) {
-            throw new Exception("Failed to save message: " . $stmt->error);
+            throw new Exception("Failed to save message: " . $stmt->errorInfo()[2]);
         }
 
         echo json_encode([
@@ -79,6 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

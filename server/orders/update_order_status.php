@@ -27,31 +27,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
+        $database = new Database();
+        $conn = $database->getConnection();
         if (!$conn) {
-            throw new Exception("Database connection failed");
+            throw new Exception("Database connection failed.");
         }
 
         // Prepare and execute the update query
         $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
         if (!$stmt) {
-            throw new Exception("Failed to prepare statement: " . $conn->error);
+            throw new Exception("Failed to prepare statement: " . $conn->errorInfo()[2]);
         }
 
-        $stmt->bind_param("si", $newStatus, $orderId);
+        $stmt->bindParam(1, $newStatus, PDO::PARAM_STR);
+        $stmt->bindParam(2, $orderId, PDO::PARAM_INT);
 
         if (!$stmt->execute()) {
-            throw new Exception("Failed to execute statement: " . $stmt->error);
+            throw new Exception("Failed to execute statement: " . $stmt->errorInfo()[2]);
         }
 
-        if ($stmt->affected_rows > 0) {
+        if ($stmt->rowCount() > 0) {
             // Insert into order_timeline table
             $stmt_timeline = $conn->prepare("INSERT INTO order_timeline (order_id, status_changed_to) VALUES (?, ?)");
             if ($stmt_timeline) {
-                $stmt_timeline->bind_param("is", $orderId, $newStatus);
+                $stmt_timeline->bindParam(1, $orderId, PDO::PARAM_INT);
+                $stmt_timeline->bindParam(2, $newStatus, PDO::PARAM_STR);
                 $stmt_timeline->execute();
-                $stmt_timeline->close();
             } else {
-                error_log("Failed to prepare timeline insert statement: " . $conn->error);
+                error_log("Failed to prepare timeline insert statement: " . $conn->errorInfo()[2]);
             }
             echo json_encode(['status' => 'success', 'message' => 'Order status updated successfully.']);
         } else {
@@ -63,11 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     } finally {
-        if (isset($stmt)) {
-            $stmt->close();
-        }
         if (isset($conn)) {
-            $conn->close();
+            $conn = null; // Close PDO connection by setting to null
         }
     }
 } else {

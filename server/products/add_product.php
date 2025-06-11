@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        $database = new Database();
+        $conn = $database->getConnection();
+
+        if (!$conn) {
+            throw new Exception("Database connection failed.");
+        }
+
         // Get POST data
         $data = json_decode(file_get_contents('php://input'), true);
         
@@ -37,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
 
         if (!$stmt) {
-            throw new Exception("Failed to prepare statement: " . $conn->error);
+            throw new Exception("Failed to prepare statement: " . $conn->errorInfo()[2]);
         }
 
         // Convert arrays to JSON
@@ -46,25 +53,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $featured = isset($data['featured']) ? (int)$data['featured'] : 0;
 
         // Bind parameters
-        $stmt->bind_param(
-            "ssdssiiss",
-            $data['name'],
-            $data['description'],
-            $data['price'],
-            $data['category'],
-            $data['material'],
-            $data['stock'],
-            $featured,
-            $images,
-            $features
-        );
+        $stmt->bindParam(1, $data['name'], PDO::PARAM_STR);
+        $stmt->bindParam(2, $data['description'], PDO::PARAM_STR);
+        $stmt->bindParam(3, $data['price'], PDO::PARAM_STR);
+        $stmt->bindParam(4, $data['category'], PDO::PARAM_STR);
+        $stmt->bindParam(5, $data['material'], PDO::PARAM_STR);
+        $stmt->bindParam(6, $data['stock'], PDO::PARAM_INT);
+        $stmt->bindParam(7, $featured, PDO::PARAM_INT);
+        $stmt->bindParam(8, $images, PDO::PARAM_STR);
+        $stmt->bindParam(9, $features, PDO::PARAM_STR);
 
         // Execute statement
         if (!$stmt->execute()) {
-            throw new Exception("Failed to add product: " . $stmt->error);
+            throw new Exception("Failed to add product: " . $stmt->errorInfo()[2]);
         }
 
-        $productId = $conn->insert_id;
+        $productId = $conn->lastInsertId();
 
         echo json_encode([
             'status' => 'success',
@@ -88,6 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

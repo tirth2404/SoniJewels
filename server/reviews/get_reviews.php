@@ -9,6 +9,8 @@ header("Access-Control-Allow-Methods: GET");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+require_once __DIR__ . '/../config/database.php';
+
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -24,11 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 // Database connection
 try {
-    $conn = new mysqli("localhost", "root", "", "Sonijewels");
+    $database = new Database();
+    $conn = $database->getConnection();
     
     // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
+    if (!$conn) {
+        throw new Exception("Database connection failed.");
     }
 } catch (Exception $e) {
     error_log("Database connection error: " . $e->getMessage());
@@ -58,28 +61,44 @@ try {
     
     $stmt = $conn->prepare($reviews_query);
     if (!$stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed: " . $conn->errorInfo()[2]);
     }
     
-    $stmt->bind_param("i", $product_id);
+    $stmt->bindParam(1, $product_id, PDO::PARAM_INT);
     
     if (!$stmt->execute()) {
-        throw new Exception("Execute failed: " . $stmt->error);
+        throw new Exception("Execute failed: " . $stmt->errorInfo()[2]);
     }
     
-    $result = $stmt->get_result();
-    $reviews = [];
+    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    while ($row = $result->fetch_assoc()) {
-        // Format the profile picture URL if it exists
+    // Format the profile picture URL if it exists
+    foreach ($reviews as &$row) {
         if ($row['profilePicture']) {
-            // Remove any leading slashes or backslashes and the base path if it exists
-            $profilePath = ltrim($row['profilePicture'], '/\\');
-            $profilePath = str_replace('SoniJewels/server/uploads/profile/', '', $profilePath);
-            // Construct the full path
-            $row['profilePicture'] = '/SoniJewels/server/uploads/profile/' . $profilePath;
+            $profilePath = $row['profilePicture'];
+
+            // Remove "http://localhost" prefix if it's present from database storage
+            if (strpos($profilePath, 'http://localhost') === 0) {
+                $profilePath = substr($profilePath, strlen('http://localhost'));
+            }
+            
+            // Normalize the path by replacing multiple slashes with a single slash
+            // and removing any duplicated '/SoniJewels/server/uploads/' if it occurs
+            $profilePath = preg_replace('~/{2,}|\/SoniJewels\/server\/uploads\/(?=\/SoniJewels\/server\/uploads\/profile\/)~i', '/', $profilePath);
+            $profilePath = str_replace('\\', '/', $profilePath);
+
+            // Ensure the path starts correctly for the frontend
+            if (strpos($profilePath, '/SoniJewels/server/uploads/profile/') !== 0) {
+                // This condition might be too aggressive, only if the path isn't already correct.
+                // For now, let's assume the DB might contain it or not.
+                // If path is just 'filename.jpg', prepend the full uploads path
+                if (strpos($profilePath, 'profile/') === false) {
+                    $profilePath = '/SoniJewels/server/uploads/profile/' . $profilePath;
+                }
+            }
+            
+            $row['profilePicture'] = $profilePath;
         }
-        $reviews[] = $row;
     }
     
     // Get review statistics
@@ -93,17 +112,16 @@ try {
     
     $stats_stmt = $conn->prepare($stats_query);
     if (!$stats_stmt) {
-        throw new Exception("Prepare failed: " . $conn->error);
+        throw new Exception("Prepare failed: " . $conn->errorInfo()[2]);
     }
     
-    $stats_stmt->bind_param("i", $product_id);
+    $stats_stmt->bindParam(1, $product_id, PDO::PARAM_INT);
     
     if (!$stats_stmt->execute()) {
-        throw new Exception("Execute failed: " . $stats_stmt->error);
+        throw new Exception("Execute failed: " . $stats_stmt->errorInfo()[2]);
     }
     
-    $stats_result = $stats_stmt->get_result();
-    $stats = $stats_result->fetch_assoc();
+    $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     
     // Ensure we have default values if no reviews
     $stats['total_reviews'] = intval($stats['total_reviews']);
@@ -118,14 +136,8 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Failed to fetch reviews. Please try again.']);
 } finally {
-    if (isset($stmt)) {
-        $stmt->close();
-    }
-    if (isset($stats_stmt)) {
-        $stats_stmt->close();
-    }
     if (isset($conn)) {
-        $conn->close();
+        $conn = null;
     }
 }
 ?> 

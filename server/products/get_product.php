@@ -19,7 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // Check database connection
+        $database = new Database();
+        $conn = $database->getConnection();
+
         if (!$conn) {
             throw new Exception("Database connection failed");
         }
@@ -38,16 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Get product details including images and features from JSON columns
         $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
         if (!$stmt) {
-            throw new Exception("Failed to prepare product query: " . $conn->error);
+            throw new Exception("Failed to prepare product query: " . $conn->errorInfo()[2]);
         }
 
-        $stmt->bind_param("i", $id);
+        $stmt->bindParam(1, $id, PDO::PARAM_INT);
         if (!$stmt->execute()) {
-            throw new Exception("Failed to execute product query: " . $stmt->error);
+            throw new Exception("Failed to execute product query: " . $stmt->errorInfo()[2]);
         }
 
-        $result = $stmt->get_result();
-        if ($result->num_rows === 0) {
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$product) {
             echo json_encode([
                 'status' => 'error',
                 'message' => 'Product not found'
@@ -55,16 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit;
         }
         
-        $product = $result->fetch_assoc();
-        $stmt->close();
-        
         // Parse JSON columns
         $product['images'] = json_decode($product['images'], true) ?? [];
         $product['features'] = json_decode($product['features'], true) ?? [];
         
         // Get reviews if the reviews table exists
         try {
-            $stmt = $conn->prepare("
+            $stmt_reviews = $conn->prepare("
                 SELECT r.*, u.name as user_name
                 FROM reviews r
                 LEFT JOIN users u ON r.user_id = u.id
@@ -72,10 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 ORDER BY r.created_at DESC
             ");
             
-            if ($stmt) {
-                $stmt->bind_param("i", $id);
-                if ($stmt->execute()) {
-                    $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            if ($stmt_reviews) {
+                $stmt_reviews->bindParam(1, $id, PDO::PARAM_INT);
+                if ($stmt_reviews->execute()) {
+                    $reviews = $stmt_reviews->fetchAll(PDO::FETCH_ASSOC);
                     $product['reviews'] = $reviews;
                     
                     // Calculate average rating
@@ -85,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     }
                     $product['rating'] = count($reviews) > 0 ? round($totalRating / count($reviews), 1) : 0;
                 }
-                $stmt->close();
             }
         } catch (Exception $e) {
             // If reviews table doesn't exist, just continue without reviews
@@ -112,6 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

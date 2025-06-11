@@ -15,6 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
+        $database = new Database();
+        $conn = $database->getConnection();
         // Check database connection
         if (!$conn) {
             throw new Exception("Database connection failed");
@@ -30,10 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             throw new Exception("Failed to execute query: " . $stmt->error);
         }
 
-        $result = $stmt->get_result();
         $products = [];
         
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             // Convert JSON strings to arrays
             $row['images'] = json_decode($row['images'], true) ?? [];
             $row['features'] = json_decode($row['features'], true) ?? [];
@@ -47,17 +48,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $productIdToLog = 1;
         $stmtSingle = $conn->prepare("SELECT images FROM products WHERE id = ?");
         if ($stmtSingle) {
-            $stmtSingle->bind_param("i", $productIdToLog);
+            $stmtSingle->bindParam(1, $productIdToLog, PDO::PARAM_INT);
             $stmtSingle->execute();
-            $resultSingle = $stmtSingle->get_result();
-            if ($rowSingle = $resultSingle->fetch_assoc()) {
+            if ($rowSingle = $stmtSingle->fetch(PDO::FETCH_ASSOC)) {
                 $imagesJson = $rowSingle['images'];
                 $imagesArray = json_decode($imagesJson, true) ?? [];
                 error_log("Images for product ID " . $productIdToLog . ": " . print_r($imagesArray, true));
             } else {
                 error_log("Product with ID " . $productIdToLog . " not found.");
             }
-            $stmtSingle->close();
         }
         // --- End: Log image paths for product ID 1 ---
 
@@ -81,6 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if (isset($conn)) {
-    $conn->close();
+    $conn = null; // Close PDO connection by setting to null
 }
 ?> 

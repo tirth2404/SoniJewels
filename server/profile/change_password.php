@@ -13,7 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    global $conn;
+    // Remove global $conn;
+    $database = new Database();
+    $conn = $database->getConnection();
+
+    if (!$conn) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
+        exit();
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
 
     $userId = $data['userId'] ?? null;
@@ -46,29 +55,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Verify old password
     $stmt = $conn->prepare('SELECT password FROM users WHERE id = ?');
-    $stmt->bind_param('i', $userId);
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to prepare statement: ' . $conn->errorInfo()[2]]);
+        exit();
+    }
+    $stmt->bindParam(1, $userId, PDO::PARAM_INT);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user || !password_verify($oldPassword, $user['password'])) {
         http_response_code(401);
         echo json_encode(['status' => 'error', 'message' => 'Invalid old password.']);
-        $stmt->close();
-        $conn->close();
         exit();
     }
-    $stmt->close();
 
     // Hash the new password
     $hashedNewPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
     // Update password in the database
     $stmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
-    $stmt->bind_param('si', $hashedNewPassword, $userId);
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to prepare statement: ' . $conn->errorInfo()[2]]);
+        exit();
+    }
+    $stmt->bindParam(1, $hashedNewPassword, PDO::PARAM_STR);
+    $stmt->bindParam(2, $userId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
-        if ($stmt->affected_rows > 0) {
+        if ($stmt->rowCount() > 0) {
             http_response_code(200);
             echo json_encode(['status' => 'success', 'message' => 'Password updated successfully.']);
         } else {
@@ -77,14 +93,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Failed to update password: ' . $stmt->error]);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update password: ' . $stmt->errorInfo()[2]]);
     }
-
-    $stmt->close();
-    $conn->close();
 
 } else {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
+}
+
+// Ensure connection is closed by setting to null
+if (isset($conn)) {
+    $conn = null;
 }
 ?> 
