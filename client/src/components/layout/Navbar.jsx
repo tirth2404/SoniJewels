@@ -91,6 +91,14 @@ const Navbar = () => {
                 Shop
               </Link>
               <Link 
+                to="/gold-price" 
+                className={`font-medium hover:text-burgundy transition-colors ${
+                  location.pathname === '/gold-price' ? 'text-burgundy' : 'text-charcoal'
+                }`}
+              >
+                Gold Price
+              </Link>
+              <Link 
                 to="/contact" 
                 className={`font-medium hover:text-burgundy transition-colors ${
                   location.pathname === '/contact' ? 'text-burgundy' : 'text-charcoal'
@@ -223,6 +231,14 @@ const Navbar = () => {
               }`}
             >
               Shop
+            </Link>
+            <Link 
+              to="/gold-price" 
+              className={`font-medium py-2 hover:text-burgundy transition-colors ${
+                location.pathname === '/gold-price' ? 'text-burgundy' : 'text-charcoal'
+              }`}
+            >
+              Gold Price
             </Link>
             <Link 
               to="/contact" 

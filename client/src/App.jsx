@@ -29,6 +29,7 @@ import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 import ShippingPolicyPage from './pages/ShippingPolicyPage.jsx';
 import UserFeedbackPage from './pages/UserFeedbackPage.jsx';
 import AboutPage from './pages/AboutPage';
+import GoldPricePage from './pages/GoldPricePage.jsx';
 import { Toaster } from 'react-hot-toast';
 import AdminFeedbackPage from './pages/admin/AdminFeedbackPage.jsx';
 import AdminCustomerQueriesPage from './pages/admin/CustomerQueriesPage.jsx';
@@ -84,7 +85,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          
+          <Route path="/gold-price" element={<GoldPricePage />} />
           
           {/* User Routes */}
           <Route
