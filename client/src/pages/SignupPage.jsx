@@ -94,7 +94,7 @@ const SignupPage = () => {
                     value={formData.name}
                     onChange={handleChange}
                     className="form-input pl-10"
-                    placeholder="John Doe"
+                    placeholder="username"
                     title='Enter your user name'
                     required
                   />
